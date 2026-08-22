@@ -33,6 +33,7 @@
   .stats{ display:flex; justify-content:space-around; margin-bottom:8px; flex:0 0 auto; }
   .stat{ text-align:center; }
   .stat .num{ font-family:'Baloo 2', cursive; font-size:1.15rem; color:var(--coral); }
+  #scoreNum{ font-size:1.7rem; }
   .stat .lbl{ font-size:0.68rem; color:var(--plum-soft); font-weight:600; }
   .field-wrap{ flex:1 1 auto; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
   .field{
@@ -41,15 +42,16 @@
   }
   .catch-fx{
     position:absolute; left:0; top:0; pointer-events:none; z-index:5;
-    font-family:'Baloo 2', cursive; font-weight:800; font-size:1.2rem; color:var(--mint);
-    text-shadow:0 2px 4px rgba(0,0,0,0.18); white-space:nowrap;
-    transform:translate(-50%,-50%); animation:catchFloat .7s ease-out forwards;
+    font-family:'Baloo 2', cursive; font-weight:800; font-size:2rem; color:var(--mint);
+    text-shadow:0 3px 6px rgba(0,0,0,0.22); white-space:nowrap;
+    transform:translate(-50%,-50%); animation:catchFloat .8s ease-out forwards;
   }
   .catch-fx.bonus{ color:#E0A800; }
+  .catch-fx.bomb{ color:#FF4747; font-size:2.3rem; }
   @keyframes catchFloat{
-    0%{ transform:translate(-50%,-50%) scale(0.6); opacity:0; }
-    30%{ transform:translate(-50%,-80%) scale(1.2); opacity:1; }
-    100%{ transform:translate(-50%,-170%) scale(1); opacity:0; }
+    0%{ transform:translate(-50%,-50%) scale(0.5); opacity:0; }
+    30%{ transform:translate(-50%,-85%) scale(1.35); opacity:1; }
+    100%{ transform:translate(-50%,-190%) scale(1); opacity:0; }
   }
   .hole{
     position:relative; border:none; border-radius:50%; cursor:pointer; -webkit-tap-highlight-color:transparent;
@@ -131,9 +133,11 @@ function playCatch(){ playTone(700, 0, 0.09, 'triangle', 0.12); }
 function playBonus(){ [700,940].forEach((f,i)=> playTone(f, i*0.06, 0.12, 'triangle', 0.13)); }
 function playStart(){ [392,587.33].forEach((f,i)=> playTone(f, i*0.09, 0.2, 'triangle', 0.13)); }
 function playEnd(){ [523.25,659.25,783.99].forEach((f,i)=> playTone(f, i*0.1, 0.25, 'triangle', 0.13)); }
+function playBomb(){ [330,220,130].forEach((f,i)=> playTone(f, i*0.09, 0.28, 'sawtooth', 0.12)); }
 
 const CRITTER_HTML = `<img class="critter" src="../pessoas/pikachu.png" alt="Ratinho elétrico">`;
 const BOLT_HTML = `<span class="bolt">⚡</span>`;
+const BOMB_HTML = `<span class="bolt">💣</span>`;
 
 const HOLE_COUNT = 9;
 const field = document.getElementById('field');
@@ -178,13 +182,13 @@ function popOne(){
   if(i === lastHole) i = (i+1) % HOLE_COUNT;
   lastHole = i;
   const h = holes[i];
-  const isBonus = Math.random() < 0.25;
-  h.type = isBonus ? 'bonus' : 'critter';
-  h.pop.innerHTML = isBonus ? BOLT_HTML : CRITTER_HTML;
+  const roll = Math.random();
+  h.type = roll < 0.14 ? 'bomb' : roll < 0.36 ? 'bonus' : 'critter';
+  h.pop.innerHTML = h.type === 'bomb' ? BOMB_HTML : h.type === 'bonus' ? BOLT_HTML : CRITTER_HTML;
   h.el.classList.add('up');
   h.active = true;
 
-  const showDuration = isBonus ? 550 : Math.max(480, 950 - score*8);
+  const showDuration = h.type === 'bomb' ? 650 : h.type === 'bonus' ? 550 : Math.max(480, 950 - score*8);
   h.hideTimer = setTimeout(()=>{
     if(h.active){ hideHole(i); scheduleNextPop(); }
   }, showDuration);
@@ -196,15 +200,15 @@ function scheduleNextPop(){
   popScheduleTimer = setTimeout(popOne, delay);
 }
 
-function showCatchFx(i, bonus){
+function showCatchFx(i, kind, text){
   const row = Math.floor(i/3), col = i%3;
   const fx = document.createElement('div');
-  fx.className = 'catch-fx' + (bonus ? ' bonus' : '');
-  fx.textContent = bonus ? '+3 🌟' : '+1 ⚡';
+  fx.className = 'catch-fx' + (kind ? ' '+kind : '');
+  fx.textContent = text;
   fx.style.left = ((col+0.5)/3*100) + '%';
   fx.style.top = ((row+0.5)/3*100) + '%';
   field.appendChild(fx);
-  setTimeout(()=> fx.remove(), 700);
+  setTimeout(()=> fx.remove(), 800);
 }
 
 function tapHole(i){
@@ -212,12 +216,21 @@ function tapHole(i){
   const h = holes[i];
   if(!h.active) return;
   clearTimeout(h.hideTimer);
+
+  if(h.type === 'bomb'){
+    playBomb();
+    showCatchFx(i, 'bomb', '💥');
+    hideHole(i);
+    setTimeout(()=> endGame(true), 400);
+    return;
+  }
+
   const isBonus = h.type === 'bonus';
   const gained = isBonus ? 3 : 1;
   score += gained;
   if(isBonus) playBonus(); else playCatch();
   document.getElementById('scoreNum').textContent = score;
-  showCatchFx(i, isBonus);
+  showCatchFx(i, isBonus ? 'bonus' : '', isBonus ? '+3 🌟' : '+1 ⚡');
   hideHole(i);
   scheduleNextPop();
 }
@@ -243,11 +256,18 @@ function startGame(){
   }, 1000);
 }
 
-function endGame(){
+function endGame(hitBomb){
   running = false;
   clearInterval(tickInterval);
   clearTimeout(popScheduleTimer);
   holes.forEach((h,i)=>{ clearTimeout(h.hideTimer); hideHole(i); });
+  if(hitBomb){
+    document.querySelector('#overOverlay .big-emoji').textContent = '💣';
+    document.querySelector('#overOverlay h2').textContent = 'Bum! Pegou uma bomba!';
+  } else {
+    document.querySelector('#overOverlay .big-emoji').textContent = '🎉';
+    document.querySelector('#overOverlay h2').textContent = 'Tempo esgotado!';
+  }
   playEnd();
   if(score > best){ best = score; saveBest(best); document.getElementById('bestNum').textContent = best; }
   document.getElementById('overStats').textContent = `Você fez ${score} pontos!`;

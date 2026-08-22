@@ -76,7 +76,7 @@
 <div class="app">
   <div class="topnav"><a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a></div>
   <header class="top">
-    <h1>🪙 Lorenzo Coleta Moedas</h1>
+    <h1>💰 Lorenzo Coleta Moedas</h1>
     <p>Mova o Lorenzo e pegue moedas e estrelas!</p>
   </header>
 
@@ -90,7 +90,7 @@
     <div class="field-box" id="fieldBox">
       <div class="player" id="player"><img src="../pessoas/lorenzo_real.jpg" alt="Lorenzo"></div>
       <div class="overlay" id="startOverlay">
-        <div class="big-emoji">🪙</div>
+        <div class="big-emoji">💰</div>
         <h2>Vamos coletar moedas?</h2>
         <p>Desvie das bombas e pegue tudo de bom!</p>
         <button class="btn btn-primary" id="startBtn">Começar</button>
@@ -129,8 +129,8 @@ function playHit(){ playTone(200, 0, 0.2, 'sine', 0.09); }
 function playStart(){ [392,587.33].forEach((f,i)=> playTone(f, i*0.09, 0.2, 'triangle', 0.13)); }
 function playOver(){ [392,330,262].forEach((f,i)=> playTone(f, i*0.12, 0.22, 'sine', 0.11)); }
 
-const GOOD_ITEMS = [{e:'🪙', pts:1}, {e:'⭐', pts:2}, {e:'💎', pts:3}];
-const BAD_ITEMS = ['💣','🪨'];
+const GOOD_ITEMS = [{e:'💰', pts:1}, {e:'⭐', pts:2}, {e:'💎', pts:3}];
+const BAD_ITEMS = ['💣','💀'];
 const START_LIVES = 3;
 
 const fieldWrap = document.getElementById('fieldWrap');

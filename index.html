@@ -2886,6 +2886,10 @@ function renderOnboarding(){
     await store.set('perfil:nome', val);
     cloudSyncProfile();
     playStartSound();
+    if(!requestedTabParam){
+      window.location.replace('menu.html');
+      return;
+    }
     cardArea.classList.remove('cover-card');
     document.body.classList.remove('cover-mode');
     updateGreeting();
@@ -3272,6 +3276,7 @@ function renderQuebra(){
     <div class="diff-toggle">
       <button class="diff-btn ${gridSize===2?'active':''}" id="diffEasy">Fácil (2x2)</button>
       <button class="diff-btn ${gridSize===3?'active':''}" id="diffMed">Médio (3x3)</button>
+      <button class="diff-btn ${gridSize===4?'active':''}" id="diffHard">Difícil (4x4)</button>
     </div>
     <div class="puzzle-wrap">
       <div class="puzzle-grid" id="puzzleGrid" style="grid-template-columns:repeat(${gridSize},1fr)"></div>
@@ -3302,6 +3307,7 @@ function renderQuebra(){
 
   document.getElementById('diffEasy').onclick = ()=> chooseDifficulty(2);
   document.getElementById('diffMed').onclick = ()=> chooseDifficulty(3);
+  document.getElementById('diffHard').onclick = ()=> chooseDifficulty(4);
   document.getElementById('reshuffleBtn').onclick = ()=> newPuzzle();
   document.getElementById('photoBtn').onclick = ()=> document.getElementById('photoInput').click();
   document.getElementById('photoInput').onchange = (e)=> onPhotoChosen(e.target.files[0]);
@@ -3766,6 +3772,10 @@ const requestedTab = VALID_TABS.includes(requestedTabParam) ? requestedTabParam 
   const n = gridSize*gridSize;
   order = shuffle([...Array(n).keys()]);
   if(profileName){
+    if(!requestedTabParam){
+      window.location.replace('menu.html');
+      return;
+    }
     updateGreeting();
     setTab(requestedTab);
   }else{
