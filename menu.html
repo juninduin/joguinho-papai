@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#EAF4FB; --card:#FFFFFF; --coral:#FF8B67; --yellow:#FFD166;
+    --mint:#06D6A0; --plum:#3D348B; --plum-soft:#6C63AC; --ink:#2C2A4A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 15%, #DCEEFB 0%, transparent 40%),
+      radial-gradient(circle at 88% 80%, #FDE9DC 0%, transparent 45%),
+      var(--sky);
+    font-family:'Quicksand', sans-serif; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    padding:26px 14px 50px;
+  }
+  h1,h2,.display{ font-family:'Baloo 2', cursive; }
+  .app{ width:100%; max-width:620px; }
+  header.top{ text-align:center; margin-bottom:22px; }
+  header.top h1{ font-size:1.8rem; color:var(--plum); margin:8px 0 2px; }
+  header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.95rem; }
+  .section-label{ font-family:'Baloo 2', cursive; color:var(--plum-soft); font-size:0.95rem; margin:22px 4px 10px; }
+  .section-label:first-of-type{ margin-top:0; }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (min-width:520px){ .grid{ grid-template-columns:1fr 1fr 1fr; } }
+  .tile{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    background:var(--card); border-radius:24px; padding:24px 10px; text-decoration:none; color:var(--ink);
+    box-shadow:0 12px 26px rgba(61,52,139,0.10); transition:transform .15s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tile:active{ transform:scale(0.96); }
+  .tile .emoji{ font-size:2.6rem; }
+  .tile .name{ font-family:'Baloo 2', cursive; font-size:0.98rem; color:var(--plum); text-align:center; }
+  .tile.c1{ background:#FFF1EA; } .tile.c2{ background:#EAF6FF; } .tile.c3{ background:#F1EBFB; }
+  .tile.c4{ background:#E3FBF3; } .tile.c5{ background:#FFF7DD; } .tile.c6{ background:#FFEAF0; }
+  .tile.c7{ background:#E8F5E2; } .tile.c8{ background:#F4E9FF; } .tile.c9{ background:#FFF0DE; }
+  .tile.c10{ background:#E7F0FF; }
+  .tile.c11{ background:#FDEFFF; } .tile.c12{ background:#EAFBEA; } .tile.c13{ background:#FFF4E5; }
+  .tile.c14{ background:#E9F0FF; } .tile.c15{ background:#FFF9E0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>🎮 Menu</h1>
+    <p>Escolha o que você quer fazer!</p>
+  </header>
+
+  <div class="section-label">🎮 Joguinhos</div>
+  <div class="grid">
+    <a class="tile c5" href="index.html?tab=quebra">
+      <span class="emoji">🧩</span><span class="name">Quebra-cabeça</span>
+    </a>
+    <a class="tile c6" href="jogos/memoria.html">
+      <span class="emoji">🧠</span><span class="name">Jogo da Memória</span>
+    </a>
+    <a class="tile c7" href="jogos/sete-erros.html">
+      <span class="emoji">🔍</span><span class="name">7 Erros</span>
+    </a>
+    <a class="tile c8" href="jogos/cartas.html">
+      <span class="emoji">🃏</span><span class="name">Combine as Cartas</span>
+    </a>
+    <a class="tile c9" href="jogos/cobrinha.html">
+      <span class="emoji">🐍</span><span class="name">Cobrinha</span>
+    </a>
+    <a class="tile c10" href="jogos/corrida.html">
+      <span class="emoji">🏎️</span><span class="name">Corrida</span>
+    </a>
+    <a class="tile c11" href="jogos/velha.html">
+      <span class="emoji">⭕</span><span class="name">Jogo da Velha</span>
+    </a>
+    <a class="tile c12" href="jogos/bolinhas.html">
+      <span class="emoji">🧪</span><span class="name">Junte as Bolinhas</span>
+    </a>
+    <a class="tile c13" href="jogos/penaltis.html">
+      <span class="emoji">🥅</span><span class="name">Pênaltis</span>
+    </a>
+    <a class="tile c14" href="jogos/2048.html">
+      <span class="emoji">🔢</span><span class="name">2048</span>
+    </a>
+    <a class="tile c15" href="jogos/pega-raio.html">
+      <span class="emoji">⚡</span><span class="name">Pega-Raio</span>
+    </a>
+    <a class="tile c11" href="jogos/vestir-jhulya.html">
+      <span class="emoji">👗</span><span class="name">Vestir a Jhulya</span>
+    </a>
+    <a class="tile c13" href="jogos/lorenzo-moedas.html">
+      <span class="emoji">🪙</span><span class="name">Lorenzo Coleta Moedas</span>
+    </a>
+    <a class="tile c9" href="jogos/alimentar-perola.html">
+      <span class="emoji">🐟</span><span class="name">Alimente a Pérola</span>
+    </a>
+  </div>
+
+  <div class="section-label">🧸 Minhas coisas</div>
+  <div class="grid">
+    <a class="tile c1" href="index.html?tab=rotina">
+      <span class="emoji">🏠</span><span class="name">Rotina</span>
+    </a>
+    <a class="tile c2" href="index.html?tab=emocao">
+      <span class="emoji">🙂</span><span class="name">Diário de Emoções</span>
+    </a>
+    <a class="tile c4" href="index.html?tab=perfil">
+      <span class="emoji">⚙️</span><span class="name">Configurações</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

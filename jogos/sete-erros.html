@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Jogo dos 7 Erros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#EAF4FB; --card:#FFFFFF; --coral:#FF8B67; --yellow:#FFD166;
+    --mint:#06D6A0; --plum:#3D348B; --plum-soft:#6C63AC; --ink:#2C2A4A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 15%, #DCEEFB 0%, transparent 40%),
+      radial-gradient(circle at 88% 80%, #FDE9DC 0%, transparent 45%),
+      var(--sky);
+    font-family:'Quicksand', sans-serif; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    padding:16px 14px 50px;
+  }
+  h1,h2,.display{ font-family:'Baloo 2', cursive; }
+  .app{ width:100%; max-width:760px; }
+  .topnav{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .backbtn{ width:42px; height:42px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); }
+  header.top{ text-align:center; margin-bottom:14px; }
+  header.top h1{ font-size:1.5rem; color:var(--plum); margin:4px 0 2px; }
+  header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.9rem; }
+  .stats{ display:flex; justify-content:center; gap:10px; align-items:center; margin-bottom:14px; }
+  .pill{ background:white; border-radius:999px; padding:8px 18px; font-family:'Baloo 2', cursive; color:var(--plum); box-shadow:0 6px 14px rgba(61,52,139,0.08); }
+  .scenes{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .scene-wrap{ flex:1; min-width:260px; }
+  .scene-label{ text-align:center; font-weight:700; color:var(--plum-soft); font-size:0.85rem; margin-bottom:6px; }
+  .scene{
+    position:relative; width:100%; aspect-ratio:5/6; border-radius:20px; overflow:hidden;
+    background:linear-gradient(to bottom, #BEE3F8 0%, #BEE3F8 65%, #B7E4B0 65%, #93D488 100%);
+    box-shadow:0 10px 24px rgba(61,52,139,0.14); cursor:crosshair;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .item{ position:absolute; transform:translate(-50%,-50%); font-size:1.9rem; user-select:none; pointer-events:none; }
+  .marker{ position:absolute; transform:translate(-50%,-50%); width:15%; aspect-ratio:1; border-radius:50%; border:3px solid var(--mint); box-shadow:0 0 0 3px rgba(6,214,160,0.25); pointer-events:none; animation:pop .3s ease; }
+  .miss{ position:absolute; transform:translate(-50%,-50%); font-size:1.4rem; pointer-events:none; animation:fadeout .6s ease forwards; }
+  @keyframes pop{ from{ transform:translate(-50%,-50%) scale(0); } to{ transform:translate(-50%,-50%) scale(1); } }
+  @keyframes fadeout{ from{ opacity:1; } to{ opacity:0; transform:translate(-50%,-70%); } }
+  .foundlist{ display:flex; justify-content:center; gap:6px; margin:14px 0 4px; flex-wrap:wrap; }
+  .dotbox{ width:26px; height:26px; border-radius:50%; background:#E7E3FA; display:flex; align-items:center; justify-content:center; font-size:0.85rem; }
+  .dotbox.on{ background:var(--mint); color:white; }
+  .win-overlay{
+    display:none; position:fixed; inset:0; background:rgba(61,52,139,0.55); align-items:center; justify-content:center; padding:20px; z-index:10;
+  }
+  .win-card{ background:white; border-radius:24px; padding:26px 22px; text-align:center; max-width:340px; box-shadow:0 20px 40px rgba(0,0,0,0.2); }
+  .win-card .big-emoji{ font-size:3rem; }
+  button.btn{ font-family:'Baloo 2', cursive; font-size:1rem; border:none; border-radius:16px; padding:12px 20px; cursor:pointer; transition:transform .15s ease; margin-top:14px; }
+  button.btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:var(--coral); color:white; width:100%; }
+  @media (max-width:640px){ .scenes{ flex-direction:column; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topnav"><a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a></div>
+  <header class="top">
+    <h1>🔍 Jogo dos 7 Erros</h1>
+    <p>Toque nas diferenças entre as duas cenas!</p>
+  </header>
+
+  <div class="stats"><div class="pill" id="foundCount">0 de 7 encontrados</div></div>
+
+  <div class="scenes">
+    <div class="scene-wrap">
+      <div class="scene-label">Cena 1</div>
+      <div class="scene" id="sceneLeft"></div>
+    </div>
+    <div class="scene-wrap">
+      <div class="scene-label">Cena 2</div>
+      <div class="scene" id="sceneRight"></div>
+    </div>
+  </div>
+
+  <div class="foundlist" id="foundList"></div>
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-card">
+    <div class="big-emoji">🎉</div>
+    <h2>Parabéns!</h2>
+    <p style="color:var(--plum-soft); font-weight:600;">Você achou os 7 erros!</p>
+    <button class="btn btn-primary" id="playAgainBtn">Jogar de novo 🔄</button>
+  </div>
+</div>
+
+<script>
+let audioCtx = null;
+function getAudioCtx(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; } } if(audioCtx.state==='suspended'){ audioCtx.resume(); } return audioCtx; }
+function playTone(freq, startTime, duration, type, peakGain){
+  const ctx = getAudioCtx(); if(!ctx) return;
+  const osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = type || 'triangle'; osc.frequency.value = freq;
+  const t0 = ctx.currentTime + startTime;
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(peakGain || 0.14, t0 + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + duration + 0.02);
+}
+function playHit(){ [523.25,783.99].forEach((f,i)=> playTone(f, i*0.07, 0.18, 'triangle', 0.13)); }
+function playMiss(){ playTone(230, 0, 0.12, 'sine', 0.07); }
+function playWin(){ [523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=> playTone(f, i*0.1, 0.3, 'triangle', 0.14)); }
+
+const COMMON = [
+  {e:'🏠', x:18, y:58, s:2.6},
+  {e:'🌳', x:80, y:50, s:2.8},
+  {e:'🌱', x:8, y:90, s:1.6},
+  {e:'🌱', x:63, y:93, s:1.6},
+  {e:'🐶', x:40, y:76, s:2.1},
+  {e:'🐱', x:5, y:68, s:1.8},
+  {e:'🪁', x:92, y:14, s:2},
+  {e:'☁️', x:65, y:9, s:2.2},
+  {e:'🌸', x:70, y:85, s:1.6},
+];
+
+const LEFT_ONLY = [
+  {e:'☀️', x:10, y:9, s:2.4},
+  {e:'🦋', x:50, y:22, s:1.7},
+  {e:'🌸', x:30, y:83, s:1.6},
+  {e:'⚽', x:85, y:73, s:1.5},
+  {e:'🐦', x:15, y:34, s:1.8, flip:false},
+  {e:'🎈', x:85, y:20, s:2, hue:0},
+];
+const RIGHT_ONLY = [
+  {e:'🦋', x:74, y:32, s:1.7},
+  {e:'🌼', x:30, y:83, s:1.6},
+  {e:'⚽', x:85, y:73, s:2.3},
+  {e:'🐦', x:15, y:34, s:1.8, flip:true},
+  {e:'🎈', x:85, y:20, s:2, hue:150},
+  {e:'🌸', x:48, y:88, s:1.6},
+];
+
+const DIFFS = [
+  {id:1, lx:10, ly:9,  rx:10, ry:9},
+  {id:2, lx:50, ly:22, rx:74, ry:32},
+  {id:3, lx:30, ly:83, rx:30, ry:83},
+  {id:4, lx:85, ly:73, rx:85, ry:73},
+  {id:5, lx:15, ly:34, rx:15, ry:34},
+  {id:6, lx:85, ly:20, rx:85, ry:20},
+  {id:7, lx:48, ly:88, rx:48, ry:88},
+];
+
+let found = new Set();
+
+function itemHtml(it){
+  let style = `left:${it.x}%; top:${it.y}%; font-size:${it.s}rem;`;
+  const transforms = ['translate(-50%,-50%)'];
+  if(it.flip) transforms.push('scaleX(-1)');
+  style += ` transform:${transforms.join(' ')};`;
+  if(it.hue) style += ` filter:hue-rotate(${it.hue}deg);`;
+  return `<span class="item" style="${style}">${it.e}</span>`;
+}
+
+function renderScenes(){
+  document.getElementById('sceneLeft').innerHTML = [...COMMON, ...LEFT_ONLY].map(itemHtml).join('');
+  document.getElementById('sceneRight').innerHTML = [...COMMON, ...RIGHT_ONLY].map(itemHtml).join('');
+  renderFoundList();
+}
+
+function renderFoundList(){
+  const list = document.getElementById('foundList');
+  list.innerHTML = DIFFS.map(d => `<div class="dotbox ${found.has(d.id)?'on':''}">${found.has(d.id)?'✓':'?'}</div>`).join('');
+  document.getElementById('foundCount').textContent = `${found.size} de 7 encontrados`;
+}
+
+function addMarker(panelEl, x, y){
+  const m = document.createElement('div');
+  m.className = 'marker';
+  m.style.left = x + '%'; m.style.top = y + '%';
+  panelEl.appendChild(m);
+}
+function addMiss(panelEl, x, y){
+  const m = document.createElement('div');
+  m.className = 'miss';
+  m.style.left = x + '%'; m.style.top = y + '%';
+  m.textContent = '✗';
+  panelEl.appendChild(m);
+  setTimeout(()=> m.remove(), 600);
+}
+
+function handleClick(side, evt){
+  const panelEl = document.getElementById(side==='left' ? 'sceneLeft' : 'sceneRight');
+  const rect = panelEl.getBoundingClientRect();
+  const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+  const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+  const px = ((clientX - rect.left) / rect.width) * 100;
+  const py = ((clientY - rect.top) / rect.height) * 100;
+
+  for(const d of DIFFS){
+    if(found.has(d.id)) continue;
+    const tx = side==='left' ? d.lx : d.rx;
+    const ty = side==='left' ? d.ly : d.ry;
+    const dist = Math.hypot(px - tx, py - ty);
+    if(dist <= 9){
+      found.add(d.id);
+      playHit();
+      addMarker(document.getElementById('sceneLeft'), d.lx, d.ly);
+      addMarker(document.getElementById('sceneRight'), d.rx, d.ry);
+      renderFoundList();
+      if(found.size === DIFFS.length){ setTimeout(showWin, 500); }
+      return;
+    }
+  }
+  playMiss();
+  addMiss(panelEl, px, py);
+}
+
+function showWin(){
+  playWin();
+  document.getElementById('winOverlay').style.display = 'flex';
+}
+
+function resetGame(){
+  found = new Set();
+  document.getElementById('winOverlay').style.display = 'none';
+  renderScenes();
+}
+
+document.getElementById('sceneLeft').addEventListener('click', (e)=>handleClick('left', e));
+document.getElementById('sceneRight').addEventListener('click', (e)=>handleClick('right', e));
+document.getElementById('playAgainBtn').onclick = resetGame;
+
+renderScenes();
+</script>
+</body>
+</html>

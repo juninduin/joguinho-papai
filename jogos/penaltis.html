@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Jogo de Pênaltis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#EAF4FB; --card:#FFFFFF; --coral:#FF8B67; --yellow:#FFD166;
+    --mint:#06D6A0; --plum:#3D348B; --plum-soft:#6C63AC; --ink:#2C2A4A;
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; height:100vh; height:100svh; overflow:hidden;
+    background:
+      radial-gradient(circle at 12% 15%, #DCEEFB 0%, transparent 40%),
+      radial-gradient(circle at 88% 80%, #FDE9DC 0%, transparent 45%),
+      var(--sky);
+    font-family:'Quicksand', sans-serif; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    padding:10px 12px;
+  }
+  h1,h2,.display{ font-family:'Baloo 2', cursive; }
+  .app{ width:100%; max-width:420px; height:100%; display:flex; flex-direction:column; min-height:0; }
+  .topnav{ display:flex; align-items:center; margin-bottom:6px; flex:0 0 auto; }
+  .backbtn{ width:38px; height:38px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:1.15rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); }
+  header.top{ text-align:center; margin-bottom:6px; flex:0 0 auto; }
+  header.top h1{ font-size:1.15rem; color:var(--plum); margin:0; }
+  header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.76rem; }
+  .stats{ display:flex; justify-content:space-around; margin-bottom:6px; flex:0 0 auto; }
+  .stat{ text-align:center; }
+  .stat .num{ font-family:'Baloo 2', cursive; font-size:1.1rem; color:var(--coral); line-height:1.1; }
+  .stat .lbl{ font-size:0.68rem; color:var(--plum-soft); font-weight:600; }
+  .goal-wrap{ flex:1 1 auto; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .goal-box{
+    position:relative; border-radius:16px; overflow:hidden;
+    background:linear-gradient(to bottom, #EAF6FF 0%, #EAF6FF 54%, #93D488 54%, #7BC96F 100%);
+    box-shadow:0 14px 30px rgba(61,52,139,0.14);
+  }
+  .goal-net{
+    position:absolute; left:8%; right:8%; top:8%; height:44%;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.55) 0 2px, transparent 2px 14px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 2px, transparent 2px 14px);
+    border:5px solid white; border-radius:4px;
+  }
+  .keeper{ position:absolute; top:14%; left:50%; transform:translateX(-50%); font-size:2.3rem; transition:left .45s ease; }
+  .ball{ position:absolute; bottom:6%; left:50%; transform:translateX(-50%); font-size:1.5rem; transition:left .45s ease, bottom .45s ease; }
+  .feedback{
+    position:absolute; top:2%; left:50%; transform:translateX(-50%); font-family:'Baloo 2', cursive;
+    font-size:1.1rem; color:var(--plum); background:rgba(255,255,255,0.9); padding:4px 14px; border-radius:999px;
+    opacity:0; transition:opacity .25s ease;
+  }
+  .feedback.show{ opacity:1; }
+  .shots{ display:flex; justify-content:center; gap:10px; margin-top:8px; flex:0 0 auto; }
+  .sbtn{
+    flex:1; max-width:110px; background:white; border:none; border-radius:14px; padding:12px 4px;
+    font-family:'Baloo 2', cursive; font-size:0.85rem; color:var(--plum); box-shadow:0 6px 14px rgba(61,52,139,0.12);
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .sbtn:active{ transform:scale(0.94); background:#F0EEFC; }
+  .sbtn .ic{ display:block; font-size:1.4rem; margin-bottom:2px; }
+  .overlay{
+    position:fixed; inset:0; background:rgba(61,52,139,0.55); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;
+  }
+  .overlay.show{ display:flex; }
+  .win-card{ background:white; border-radius:24px; padding:26px 22px; text-align:center; max-width:320px; box-shadow:0 20px 40px rgba(0,0,0,0.2); }
+  .win-card .big-emoji{ font-size:2.6rem; }
+  button.btn{ font-family:'Baloo 2', cursive; font-size:0.95rem; border:none; border-radius:16px; padding:11px 20px; cursor:pointer; transition:transform .15s ease; margin-top:12px; }
+  button.btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:var(--coral); color:white; width:100%; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topnav"><a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a></div>
+  <header class="top">
+    <h1>🥅 Pênaltis</h1>
+    <p>Escolha o canto e tente fazer o gol!</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="golsNum">0</div><div class="lbl">Gols</div></div>
+    <div class="stat"><div class="num" id="rodadaNum">1/5</div><div class="lbl">Cobrança</div></div>
+    <div class="stat"><div class="num" id="bestNum">0</div><div class="lbl">Recorde</div></div>
+  </div>
+
+  <div class="goal-wrap" id="goalWrap">
+    <div class="goal-box" id="goalBox">
+      <div class="goal-net"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="keeper" id="keeper">🧍</div>
+      <div class="ball" id="ball">⚽</div>
+    </div>
+  </div>
+
+  <div class="shots">
+    <button class="sbtn" id="shotLeft"><span class="ic">↖️</span>Esquerda</button>
+    <button class="sbtn" id="shotMid"><span class="ic">⬆️</span>Centro</button>
+    <button class="sbtn" id="shotRight"><span class="ic">↗️</span>Direita</button>
+  </div>
+</div>
+
+<div class="overlay" id="winOverlay">
+  <div class="win-card">
+    <div class="big-emoji" id="winEmoji">🏆</div>
+    <h2 id="winText">Fim de jogo!</h2>
+    <p id="winStats" style="color:var(--plum-soft); font-weight:600;"></p>
+    <button class="btn btn-primary" id="playAgainBtn">Jogar de novo 🔄</button>
+  </div>
+</div>
+
+<script>
+let audioCtx = null;
+function getAudioCtx(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; } } if(audioCtx.state==='suspended'){ audioCtx.resume(); } return audioCtx; }
+function playTone(freq, startTime, duration, type, peakGain){
+  const ctx = getAudioCtx(); if(!ctx) return;
+  const osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = type || 'triangle'; osc.frequency.value = freq;
+  const t0 = ctx.currentTime + startTime;
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(peakGain || 0.14, t0 + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + duration + 0.02);
+}
+function playGoal(){ [523.25,659.25,783.99,1046.5].forEach((f,i)=> playTone(f, i*0.09, 0.22, 'triangle', 0.13)); }
+function playSave(){ playTone(220, 0, 0.22, 'sine', 0.09); }
+function playEnd(){ [392,523.25,659.25].forEach((f,i)=> playTone(f, i*0.1, 0.25, 'triangle', 0.13)); }
+
+const ZONES = ['left','mid','right'];
+const ZONE_LEFT = { left:22, mid:50, right:78 };
+const TOTAL_ROUNDS = 5;
+
+const ball = document.getElementById('ball');
+const keeper = document.getElementById('keeper');
+const feedback = document.getElementById('feedback');
+
+const goalWrap = document.getElementById('goalWrap');
+const goalBox = document.getElementById('goalBox');
+function fitBoard(){
+  const availW = goalWrap.clientWidth;
+  const availH = goalWrap.clientHeight;
+  let w = availW;
+  let h = w * 3/4;
+  if(h > availH){ h = availH; w = h * 4/3; }
+  w = Math.max(180, Math.floor(w));
+  h = Math.max(135, Math.floor(h));
+  goalBox.style.width = w + 'px';
+  goalBox.style.height = h + 'px';
+}
+window.addEventListener('resize', fitBoard);
+window.addEventListener('orientationchange', fitBoard);
+
+let round, goals, locked, best;
+
+function loadBest(){ try{ return parseInt(localStorage.getItem('penaltis_best')||'0'); }catch(e){ return 0; } }
+function saveBest(v){ try{ localStorage.setItem('penaltis_best', String(v)); }catch(e){} }
+best = loadBest();
+document.getElementById('bestNum').textContent = best;
+
+function resetState(){
+  round = 0; goals = 0; locked = false;
+  document.getElementById('golsNum').textContent = goals;
+  document.getElementById('rodadaNum').textContent = (round+1) + '/' + TOTAL_ROUNDS;
+  document.getElementById('winOverlay').classList.remove('show');
+  snapPositions();
+}
+
+function snapPositions(){
+  ball.style.left = '50%'; ball.style.bottom = '6%';
+  keeper.style.left = '50%';
+  feedback.classList.remove('show');
+}
+
+function shoot(zone){
+  if(locked) return;
+  locked = true;
+  const keeperZone = ZONES[Math.floor(Math.random()*3)];
+
+  ball.style.left = ZONE_LEFT[zone] + '%';
+  ball.style.bottom = '46%';
+  keeper.style.left = ZONE_LEFT[keeperZone] + '%';
+
+  setTimeout(()=>{
+    const scored = zone !== keeperZone;
+    if(scored){
+      goals++; playGoal();
+      feedback.textContent = 'GOL! ⚽';
+    } else {
+      playSave();
+      feedback.textContent = 'Defendeu! 🧤';
+    }
+    feedback.classList.add('show');
+    document.getElementById('golsNum').textContent = goals;
+    round++;
+
+    setTimeout(()=>{
+      snapPositions();
+      setTimeout(()=>{
+        if(round >= TOTAL_ROUNDS){
+          endGame();
+        } else {
+          document.getElementById('rodadaNum').textContent = (round+1) + '/' + TOTAL_ROUNDS;
+          locked = false;
+        }
+      }, 450);
+    }, 900);
+  }, 480);
+}
+
+function endGame(){
+  if(goals > best){ best = goals; saveBest(best); document.getElementById('bestNum').textContent = best; }
+  playEnd();
+  const emoji = goals===TOTAL_ROUNDS ? '🏆' : goals>=3 ? '🎉' : '😊';
+  const text = goals===TOTAL_ROUNDS ? 'Perfeito!' : goals>=3 ? 'Muito bem!' : 'Continue treinando!';
+  document.getElementById('winEmoji').textContent = emoji;
+  document.getElementById('winText').textContent = text;
+  document.getElementById('winStats').textContent = `Você fez ${goals} de ${TOTAL_ROUNDS} gols!`;
+  document.getElementById('winOverlay').classList.add('show');
+}
+
+document.getElementById('shotLeft').onclick = ()=>shoot('left');
+document.getElementById('shotMid').onclick = ()=>shoot('mid');
+document.getElementById('shotRight').onclick = ()=>shoot('right');
+document.getElementById('playAgainBtn').onclick = resetState;
+
+fitBoard();
+resetState();
+</script>
+</body>
+</html>
