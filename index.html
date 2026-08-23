@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="img/icons/icon-180.png">
 <meta name="theme-color" content="#3D348B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --sky:#EAF4FB;
@@ -174,23 +174,23 @@
   @keyframes mascotBounce{ 0%,100%{ transform:translateY(0) rotate(-4deg); } 50%{ transform:translateY(-14px) rotate(4deg); } }
   @keyframes controllerWiggle{ 0%,100%{ transform:rotate(-8deg); } 50%{ transform:rotate(8deg); } }
   .game-title{
-    font-family:'Baloo 2', cursive; font-weight:800; font-size:2.9rem; line-height:1.05; margin:10px 0 0;
+    font-family:'Fredoka', 'Baloo 2', cursive; font-weight:700; font-size:3.1rem; line-height:1.05; margin:10px 0 0;
     letter-spacing:0.5px;
   }
   .game-title .w1{
-    color:#FF6B9D; -webkit-text-stroke:3px #FFFFFF;
-    text-shadow:0 4px 0 #E8437A, 0 9px 0 rgba(232,67,122,0.4), 0 16px 22px rgba(31,22,74,0.3);
+    color:#FF6B9D; -webkit-text-stroke:4px #FFFFFF; paint-order:stroke fill;
+    text-shadow:0 5px 0 #E8437A, 0 10px 0 rgba(232,67,122,0.4), 0 18px 22px rgba(31,22,74,0.3);
   }
   .game-title .w2{
-    color:#FFD166; -webkit-text-stroke:3px #FFFFFF;
-    text-shadow:0 4px 0 #E0A800, 0 9px 0 rgba(224,168,0,0.4), 0 16px 22px rgba(31,22,74,0.3);
+    color:#FFD166; -webkit-text-stroke:4px #FFFFFF; paint-order:stroke fill;
+    text-shadow:0 5px 0 #E0A800, 0 10px 0 rgba(224,168,0,0.4), 0 18px 22px rgba(31,22,74,0.3);
   }
   .game-tag{
-    margin:12px 0 26px; font-family:'Baloo 2', cursive; font-weight:700; font-size:1.05rem;
+    margin:12px 0 26px; font-family:'Fredoka', 'Baloo 2', cursive; font-weight:600; font-size:1.05rem;
     color:#FFFFFF; text-shadow:0 3px 0 rgba(61,52,139,0.35);
   }
   .play-btn{
-    font-family:'Baloo 2', cursive; font-weight:800; font-size:1.4rem; color:white; border:none;
+    font-family:'Fredoka', 'Baloo 2', cursive; font-weight:700; font-size:1.4rem; color:white; border:none;
     background:linear-gradient(180deg, #7EE8B8 0%, var(--mint) 100%);
     padding:17px 48px; border-radius:999px; cursor:pointer; -webkit-tap-highlight-color:transparent;
     box-shadow:0 8px 0 #05A87D, 0 16px 26px rgba(31,22,74,0.3); transition:transform .12s ease, box-shadow .12s ease;
