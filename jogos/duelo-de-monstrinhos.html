@@ -36,22 +36,50 @@
   .side{ display:flex; flex-direction:column; gap:6px; }
   .side-label{ font-family:'Baloo 2', cursive; font-size:0.72rem; color:var(--plum-soft); text-align:center; }
 
+  .table-felt{
+    background:radial-gradient(ellipse at center, #2E8B6E 0%, #1F6E56 70%, #17594545 100%);
+    border-radius:28px; padding:12px; box-shadow:inset 0 0 30px rgba(0,0,0,0.25), 0 10px 24px rgba(31,22,74,0.2);
+  }
   .card{
-    background:white; border-radius:16px; padding:10px 12px; box-shadow:0 8px 20px rgba(61,52,139,0.14);
-    position:relative; overflow:hidden; border:3px solid transparent;
+    background:white; border-radius:20px; padding:14px 16px; box-shadow:0 10px 24px rgba(61,52,139,0.2);
+    position:relative; overflow:hidden; border:4px solid transparent; transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .card.win-glow{ border-color:var(--mint); box-shadow:0 0 0 6px rgba(6,214,160,0.35), 0 10px 24px rgba(61,52,139,0.2); }
+  .card.hit-shake{ animation:cardShake .4s ease; border-color:#FF6B6B; }
+  @keyframes cardShake{
+    0%,100%{ transform:translateX(0); } 20%{ transform:translateX(-8px); } 40%{ transform:translateX(7px); }
+    60%{ transform:translateX(-5px); } 80%{ transform:translateX(4px); }
   }
   .card-head{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
-  .card-name{ font-family:'Baloo 2', cursive; font-size:0.95rem; }
-  .card-hp{ font-family:'Baloo 2', cursive; font-size:0.85rem; }
-  .hpbar-wrap{ height:10px; border-radius:6px; background:#EEE; overflow:hidden; margin:5px 0 8px; }
+  .card-name{ font-family:'Baloo 2', cursive; font-size:1.25rem; }
+  .card-hp{ font-family:'Baloo 2', cursive; font-size:1.05rem; }
+  .hpbar-wrap{ height:16px; border-radius:9px; background:#EEE; overflow:hidden; margin:7px 0 10px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.1); }
   .hpbar-fill{ height:100%; transition:width .3s ease; }
-  .card-body{ display:flex; align-items:center; gap:10px; }
+  .card-body{ display:flex; align-items:center; gap:14px; }
   .card-portrait{
-    width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    font-size:2rem; flex:0 0 auto; box-shadow:inset 0 -4px 0 rgba(0,0,0,0.12);
+    width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:3.4rem; flex:0 0 auto; box-shadow:inset 0 -6px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.18);
   }
-  .card-meta{ font-size:0.72rem; font-weight:700; color:var(--plum-soft); }
+  .card-meta{ font-size:0.86rem; font-weight:700; color:var(--plum-soft); line-height:1.5; }
   .weak-tag{ display:inline-block; margin-top:2px; }
+
+  .big-flash{
+    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.5); z-index:30;
+    background:white; border-radius:24px; padding:20px 30px; text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35); opacity:0; pointer-events:none;
+  }
+  .big-flash.show{ animation:bigFlashPop 1.15s cubic-bezier(.34,1.56,.64,1) forwards; }
+  .big-flash .fl-emoji{ font-size:2.6rem; display:block; margin-bottom:4px; }
+  .big-flash .fl-text{ font-family:'Baloo 2', cursive; font-size:1.3rem; color:var(--plum); white-space:nowrap; }
+  .big-flash.good .fl-text{ color:#1F9E6E; }
+  .big-flash.bad .fl-text{ color:#E8483A; }
+  @keyframes bigFlashPop{
+    0%{ transform:translate(-50%,-50%) scale(0.4); opacity:0; }
+    15%{ transform:translate(-50%,-50%) scale(1.15); opacity:1; }
+    25%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+    80%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+    100%{ transform:translate(-50%,-50%) scale(0.9); opacity:0; }
+  }
 
   .attacks{ display:flex; gap:8px; margin-top:8px; }
   button.atk-btn{
@@ -320,6 +348,22 @@ function popDamage(prefix, text, bonus){
   setTimeout(()=> pop.remove(), 800);
 }
 
+function showBigFlash(emoji, text, cls){
+  document.querySelectorAll('.big-flash').forEach(el => el.remove());
+  const el = document.createElement('div');
+  el.className = 'big-flash show' + (cls ? ' '+cls : '');
+  el.innerHTML = `<span class="fl-emoji">${emoji}</span><span class="fl-text">${text}</span>`;
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 1150);
+}
+function flashCards(attackerPrefix, defenderPrefix){
+  const a = document.getElementById(attackerPrefix+'Card');
+  const d = document.getElementById(defenderPrefix+'Card');
+  a.classList.add('win-glow');
+  d.classList.add('hit-shake');
+  setTimeout(()=>{ a.classList.remove('win-glow'); d.classList.remove('hit-shake'); }, 500);
+}
+
 function resolveAttack(side, atkIdx){
   if(!running) return;
   if(side==='player' && (turn!=='player' || pendingPlayerChoice)) return;
@@ -338,9 +382,12 @@ function resolveAttack(side, atkIdx){
   playAttack();
   if(bonus) setTimeout(playBonus, 90);
   const who = side==='player' ? 'Seu' : 'O';
+  const attackerPrefix = side==='player' ? 'player' : 'ai';
   const target = side==='player' ? 'ai' : 'player';
   setLog(`${who} ${attacker.name} usou ${atk.name}! -${dmg} PS${bonus ? ' (fraqueza! +20)' : ''}`);
   popDamage(target, '-'+dmg, bonus);
+  flashCards(attackerPrefix, target);
+  showBigFlash(bonus ? '⚡💥' : '💥', `${atk.name}! -${dmg} PS${bonus ? ' — SUPER EFEITO!' : ''}`, side==='player' ? 'good' : 'bad');
   renderAll();
 
   setTimeout(() => afterAttack(side), 350);
@@ -355,6 +402,7 @@ function afterAttack(attackerSide){
   if(defender.currentHp <= 0){
     playFaint();
     setLog(`${defender.name} foi derrotado!`);
+    showBigFlash('💫', `${defender.name} foi derrotado!`, attackerSide==='player' ? 'good' : 'bad');
     const alive = defenderHand.map((c,i)=>({c,i})).filter(o => o.c.currentHp>0);
     if(alive.length === 0){
       endGame(attackerSide);

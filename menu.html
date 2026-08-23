@@ -63,6 +63,23 @@
     -webkit-tap-highlight-color:transparent;
   }
   @media (min-width:820px){ .tile{ padding:30px 12px; border-radius:28px; } .tile .emoji{ font-size:3rem; } .tile .name{ font-size:1.05rem; } }
+
+  .section-title{ font-family:'Baloo 2', cursive; color:var(--plum); font-size:1.05rem; margin:2px 4px 12px; display:flex; align-items:center; gap:6px; }
+  .featured-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-bottom:30px; }
+  @media (min-width:560px){ .featured-grid{ grid-template-columns:repeat(4, 1fr); } }
+  @media (min-width:1100px){ .featured-grid{ grid-template-columns:repeat(4, 1fr); gap:22px; } }
+  .tile.featured{
+    padding:30px 14px; border-radius:28px; position:relative; box-shadow:0 16px 34px rgba(61,52,139,0.16);
+    border:3px solid rgba(255,255,255,0.6);
+  }
+  .tile.featured .emoji{ font-size:3.4rem; }
+  .tile.featured .name{ font-size:1.1rem; }
+  .tile.featured::before{
+    content:'⭐ Destaque'; position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    background:var(--plum); color:white; font-family:'Baloo 2', cursive; font-size:0.62rem; font-weight:700;
+    padding:3px 10px; border-radius:999px; white-space:nowrap;
+  }
+  @media (min-width:820px){ .tile.featured{ padding:36px 16px; } .tile.featured .emoji{ font-size:4rem; } .tile.featured .name{ font-size:1.25rem; } }
   .tile:active{ transform:scale(0.96); }
   .tile .emoji{ font-size:2.6rem; }
   .tile .name{ font-family:'Baloo 2', cursive; font-size:0.98rem; color:var(--plum); text-align:center; }
@@ -85,10 +102,24 @@
     <p>Escolha um joguinho pra começar</p>
   </header>
 
-  <div class="grid">
-    <a class="tile c5" href="index.html?tab=quebra">
+  <div class="section-title">⭐ Destaques</div>
+  <div class="featured-grid">
+    <a class="tile featured c5" href="index.html?tab=quebra">
       <span class="emoji">🧩</span><span class="name">Quebra-cabeça</span>
     </a>
+    <a class="tile featured c2" href="jogos/super-aventura.html">
+      <span class="emoji">🍄</span><span class="name">Super Aventura</span>
+    </a>
+    <a class="tile featured c5" href="jogos/aventura-turbo.html">
+      <span class="emoji">🐉</span><span class="name">Aventura Turbo</span>
+    </a>
+    <a class="tile featured c4" href="jogos/bolinhas.html">
+      <span class="emoji">🧪</span><span class="name">Junte as Bolinhas</span>
+    </a>
+  </div>
+
+  <div class="section-title">🎮 Todos os joguinhos</div>
+  <div class="grid">
     <a class="tile c6" href="jogos/memoria.html">
       <span class="emoji">🧠</span><span class="name">Jogo da Memória</span>
     </a>
@@ -106,9 +137,6 @@
     </a>
     <a class="tile c11" href="jogos/velha.html">
       <span class="emoji">⭕</span><span class="name">Jogo da Velha</span>
-    </a>
-    <a class="tile c12" href="jogos/bolinhas.html">
-      <span class="emoji">🧪</span><span class="name">Junte as Bolinhas</span>
     </a>
     <a class="tile c13" href="jogos/penaltis.html">
       <span class="emoji">🥅</span><span class="name">Pênaltis</span>
@@ -128,26 +156,14 @@
     <a class="tile c9" href="jogos/alimentar-perola.html">
       <span class="emoji">🐟</span><span class="name">Alimente a Pérola</span>
     </a>
-    <a class="tile c2" href="jogos/super-aventura.html">
-      <span class="emoji">🍄</span><span class="name">Super Aventura</span>
-    </a>
     <a class="tile c7" href="jogos/racha-cuca.html">
       <span class="emoji">🧩</span><span class="name">Racha-Cuca</span>
-    </a>
-    <a class="tile c5" href="jogos/aventura-turbo.html">
-      <span class="emoji">🐉</span><span class="name">Aventura Turbo</span>
     </a>
     <a class="tile c11" href="jogos/ilha-da-batalha.html">
       <span class="emoji">🎯</span><span class="name">Ilha da Batalha</span>
     </a>
     <a class="tile c8" href="jogos/duelo-de-monstrinhos.html">
       <span class="emoji">🎴</span><span class="name">Duelo de Monstrinhos</span>
-    </a>
-    <a class="tile c1" href="index.html?tab=rotina">
-      <span class="emoji">🏠</span><span class="name">Rotina</span>
-    </a>
-    <a class="tile c4" href="index.html?tab=emocao">
-      <span class="emoji">🙂</span><span class="name">Diário de Emoções</span>
     </a>
   </div>
 </div>
