@@ -21,10 +21,10 @@
       var(--sky);
     font-family:'Quicksand', sans-serif; color:var(--ink);
     display:flex; flex-direction:column; align-items:center;
-    padding:6px 8px; touch-action:none;
+    padding:0; touch-action:none;
   }
   h1,h2,.display{ font-family:'Baloo 2', cursive; }
-  .app{ width:100%; max-width:960px; height:100%; display:flex; flex-direction:column; min-height:0; }
+  .app{ width:100%; height:100%; display:flex; flex-direction:column; min-height:0; }
 
   .backbtn{
     width:32px; height:32px; border-radius:10px; background:white; border:3px solid #16214a;
@@ -32,6 +32,7 @@
     box-shadow:0 3px 0 #16214a; flex:0 0 auto; pointer-events:auto; transition:transform .1s ease, box-shadow .1s ease;
   }
   .backbtn:active{ transform:translateY(2px); box-shadow:none; }
+  .fsbtn{ font-size:1rem; color:var(--plum); cursor:pointer; }
   .hud-overlay{
     position:absolute; top:8px; left:8px; right:8px; z-index:4;
     display:flex; align-items:flex-start; justify-content:space-between; gap:6px; pointer-events:none;
@@ -53,8 +54,8 @@
   .hud-badge.lives{ padding:4px 12px; font-size:0.9rem; letter-spacing:1px; }
   .hud-badge.player{ font-size:0.75rem; max-width:90px; overflow:hidden; text-overflow:ellipsis; }
 
-  .board-wrap{ flex:1 1 auto; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  .board-box{ position:relative; border-radius:16px; overflow:hidden; box-shadow:0 14px 30px rgba(61,52,139,0.14); }
+  .board-wrap{ flex:1 1 auto; min-height:0; width:100%; overflow:hidden; }
+  .board-box{ position:relative; width:100%; height:100%; overflow:hidden; }
   canvas{ width:100%; height:100%; display:block; }
 
   .touch-ctrls{ position:absolute; inset:0; pointer-events:none; }
@@ -142,11 +143,12 @@
 <div class="app">
   <div class="board-wrap" id="boardWrap">
     <div class="board-box" id="boardBox">
-      <canvas id="board" width="960" height="480"></canvas>
+      <canvas id="board" width="960" height="560"></canvas>
 
       <div class="hud-overlay">
         <div class="hud-left">
           <a href="../menu.html" class="backbtn" aria-label="Voltar ao menu"><span class="tc-arrow left dark"></span></a>
+          <button class="backbtn fsbtn" id="btnFullscreen" aria-label="Tela cheia" type="button">⛶</button>
           <span class="hud-badge player"><span class="ic" id="hudPlayerIc">🙂</span><b id="hudPlayerName">Jogador</b></span>
         </div>
         <div class="hud-stats">
@@ -223,24 +225,43 @@ function playOver(){ [392,330,262,220].forEach((f,i)=> playTone(f, i*0.12, 0.24,
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height;
-const RATIO = W / H;
+let W = canvas.width;
+const H = canvas.height;
 const boardWrap = document.getElementById('boardWrap');
 const boardBox = document.getElementById('boardBox');
 
 function fitBoard(){
-  const availW = boardWrap.clientWidth;
-  const availH = boardWrap.clientHeight;
-  let h = availH;
-  let w = h * RATIO;
-  if(w > availW){ w = availW; h = w / RATIO; }
-  w = Math.max(160, Math.floor(w));
-  h = Math.max(80, Math.floor(h));
-  boardBox.style.width = w + 'px';
-  boardBox.style.height = h + 'px';
+  const pxW = boardBox.clientWidth;
+  const pxH = boardBox.clientHeight;
+  if(pxW <= 0 || pxH <= 0) return;
+  const newW = Math.max(400, Math.round(H * (pxW / pxH)));
+  if(newW !== W){
+    W = newW;
+    canvas.width = W;
+  }
 }
 window.addEventListener('resize', fitBoard);
 window.addEventListener('orientationchange', fitBoard);
+
+const fsBtn = document.getElementById('btnFullscreen');
+const fsTarget = document.documentElement;
+function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function toggleFullscreen(){
+  if(!isFullscreen()){
+    const req = fsTarget.requestFullscreen || fsTarget.webkitRequestFullscreen;
+    if(req) req.call(fsTarget);
+  } else {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if(exit) exit.call(document);
+  }
+}
+function updateFsBtn(){
+  fsBtn.setAttribute('aria-label', isFullscreen() ? 'Sair da tela cheia' : 'Tela cheia');
+  setTimeout(fitBoard, 60);
+}
+fsBtn.addEventListener('click', toggleFullscreen);
+document.addEventListener('fullscreenchange', updateFsBtn);
+document.addEventListener('webkitfullscreenchange', updateFsBtn);
 
 const GROUND_Y = 400;
 const GRAVITY = 1550;
@@ -495,27 +516,53 @@ function drawPapai(c, w, h){
   c.fill();
 
   drawBodyBase(c, w, h, '#3DA35D', '#DFF5E6');
+
+  // eyebrows
+  c.strokeStyle = '#3A2A1E'; c.lineWidth = 2.2; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(-8,-h/2+8); c.lineTo(0,-h/2+7); c.stroke();
+  c.beginPath(); c.moveTo(6,-h/2+7); c.lineTo(14,-h/2+8); c.stroke();
+
   drawEyes(c, h);
 
-  // mustache
+  // bold mustache, centered between the eyes
   c.fillStyle = '#3A2A1E';
   c.beginPath();
-  c.moveTo(-6, -h/2+23);
-  c.quadraticCurveTo(-1, -h/2+21, 4, -h/2+23);
-  c.quadraticCurveTo(-1, -h/2+26, -6, -h/2+23);
+  c.moveTo(-6, -h/2+22);
+  c.quadraticCurveTo(4, -h/2+18, 14, -h/2+22);
+  c.quadraticCurveTo(4, -h/2+27, -6, -h/2+22);
   c.closePath();
   c.fill();
+
+  // little collar
+  c.fillStyle = '#2C7A46';
+  c.beginPath(); c.moveTo(2,-h/2+30); c.lineTo(6,-h/2+30); c.lineTo(4,-h/2+38); c.closePath(); c.fill();
 }
 
 function drawMamae(c, w, h){
-  // long hair
+  // long flowing hair
   c.fillStyle = '#4A2E1A';
-  c.beginPath(); c.ellipse(-w/2-3, h/2-14, 7, 20, 0.1, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.ellipse(w/2+3, h/2-14, 7, 20, -0.1, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.ellipse(0, -h/2, 15, 10, 0, Math.PI, 0); c.fill();
+  c.beginPath(); c.ellipse(-w/2-4, h/2-12, 8, 22, 0.15, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(w/2+4, h/2-12, 8, 22, -0.15, 0, Math.PI*2); c.fill();
+  c.beginPath();
+  c.moveTo(-w/2-2, -h/2+8);
+  c.quadraticCurveTo(-w/2-2, -h/2-14, 2, -h/2-14);
+  c.quadraticCurveTo(w/2+2, -h/2-14, w/2+2, -h/2+8);
+  c.quadraticCurveTo(w/2-8, -h/2+1, 4, -h/2+3);
+  c.quadraticCurveTo(-6, -h/2+1, -w/2+3, -h/2+3);
+  c.closePath();
+  c.fill();
 
   drawBodyBase(c, w, h, '#9B6FDE', '#EFE5FB');
   drawEyes(c, h);
+
+  // eyelashes
+  c.strokeStyle = '#2C2A4A'; c.lineWidth = 1.6; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(-8,-h/2+11); c.lineTo(-11,-h/2+8); c.stroke();
+  c.beginPath(); c.moveTo(16,-h/2+11); c.lineTo(19,-h/2+8); c.stroke();
+
+  // lips
+  c.fillStyle = '#E0507A';
+  c.beginPath(); c.ellipse(4, -h/2+24, 4.2, 2.4, 0, 0, Math.PI*2); c.fill();
 
   // earrings
   c.fillStyle = '#FFD166';
