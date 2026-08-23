@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Super Aventura</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
@@ -249,13 +252,26 @@ window.addEventListener('orientationchange', fitBoard);
 const fsBtn = document.getElementById('btnFullscreen');
 const fsTarget = document.documentElement;
 function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function isIOS(){
+  return /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function isStandalone(){
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+}
 function toggleFullscreen(){
-  if(!isFullscreen()){
-    const req = fsTarget.requestFullscreen || fsTarget.webkitRequestFullscreen;
-    if(req) req.call(fsTarget);
-  } else {
-    const exit = document.exitFullscreen || document.webkitExitFullscreen;
-    if(exit) exit.call(document);
+  const req = fsTarget.requestFullscreen || fsTarget.webkitRequestFullscreen;
+  if(req){
+    if(!isFullscreen()){
+      req.call(fsTarget);
+    } else {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if(exit) exit.call(document);
+    }
+    return;
+  }
+  // iPhone Safari nao suporta a API de tela cheia para paginas normais
+  if(isIOS() && !isStandalone()){
+    alert('No iPhone: toque no botao de compartilhar do Safari e escolha "Adicionar a Tela de Inicio". Abrindo o jogo por esse icone, ele fica em tela cheia, sem a barra do navegador.');
   }
 }
 function updateFsBtn(){
