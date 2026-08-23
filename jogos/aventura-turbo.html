@@ -172,7 +172,7 @@
       <div class="overlay" id="setupOverlay">
         <div class="big-emoji">🐉</div>
         <h2>Aventura Turbo</h2>
-        <p>Bola de fogo, giro, barcos e uma nave espacial!</p>
+        <p>Escale as plataformas até o topo, atravesse a lagoa de barco e voe com a nave!</p>
         <p class="legend">⬅➡ mover · ⬆ pular (pula em cima do mostrinho pra destruir)<br>🔥 toque = bola de fogo · toque 2x rápido = ataque giratório</p>
         <div class="level-choices">
           <button class="btn" id="btnEasy">⭐ Fácil</button>
@@ -304,6 +304,27 @@ function genCoins(width, gaps, platforms){
   });
   return coins;
 }
+function genCoinsFromPlatforms(platforms){
+  const coins = [];
+  platforms.forEach(p=>{
+    const n = Math.max(1, Math.floor(p.w/80));
+    for(let i=0;i<n;i++){
+      const x = p.x + (p.w/(n+1))*(i+1);
+      coins.push({x, y: p.y-26, taken:false});
+    }
+  });
+  return coins;
+}
+function drawStarShape(c, cx, cy, r, points){
+  c.beginPath();
+  for(let i=0;i<points*2;i++){
+    const rad = i%2===0 ? r : r*0.45;
+    const ang = (Math.PI/points)*i - Math.PI/2;
+    const px = cx + Math.cos(ang)*rad, py = cy + Math.sin(ang)*rad;
+    if(i===0) c.moveTo(px,py); else c.lineTo(px,py);
+  }
+  c.closePath(); c.fill();
+}
 
 function drawBodyBase(c, w, h, bodyColor, bellyColor){
   c.fillStyle = bodyColor;
@@ -395,33 +416,42 @@ const ENEMY_DRAWERS = { slime:drawSlime, jelly:drawJelly, alien:drawAlien };
 
 const PHASES = [
   {
-    name:'Floresta Mágica',
-    width:2000,
-    hazardType:'pit',
+    name:'Raízes até o Topo',
+    orientation:'v',
+    width:520,
+    height:2000,
     skyTop:'#A8E6CF', skyBottom:'#EAF8F0',
-    groundColor:'#6FBF73', groundEdgeColor:'#4F9E55', platformColor:'#8B5E3C',
+    platformColor:'#8B5E3C',
     enemyType:'slime',
     decor:[
-      {type:'circle', x:830, y:70, r:38, color:'#FFF3B0'},
-      {type:'cloud', x:150, y:60, scale:1}, {type:'cloud', x:420, y:100, scale:0.8}, {type:'cloud', x:680, y:55, scale:1.1}
+      {type:'circle', x:430, y:60, r:32, color:'#FFF3B0'},
+      {type:'cloud', x:80, y:70, scale:0.8}, {type:'cloud', x:380, y:130, scale:0.7},
+      {type:'circle', x:120, y:320, r:20, color:'rgba(255,255,255,0.4)'},
+      {type:'cloud', x:300, y:400, scale:0.6}, {type:'circle', x:420, y:520, r:16, color:'rgba(255,255,255,0.35)'},
+      {type:'cloud', x:100, y:600, scale:0.8}, {type:'circle', x:350, y:720, r:22, color:'rgba(255,255,255,0.3)'},
+      {type:'cloud', x:150, y:850, scale:0.7}
     ],
-    gaps:[[480,580],[1050,1150],[1550,1650]],
+    gaps:[],
     platforms:[
-      {x:250,y:300,w:120,h:20},{x:800,y:270,w:130,h:20},
-      {x:1300,y:300,w:120,h:20},{x:1750,y:270,w:140,h:20}
+      {x:190,y:1920,w:140,h:20},{x:110,y:1790,w:120,h:20},{x:210,y:1660,w:120,h:20},
+      {x:110,y:1530,w:120,h:20},{x:210,y:1400,w:120,h:20},{x:110,y:1270,w:120,h:20},
+      {x:210,y:1140,w:120,h:20},{x:110,y:1010,w:120,h:20},{x:210,y:880,w:120,h:20},
+      {x:110,y:750,w:120,h:20},{x:210,y:620,w:120,h:20},{x:110,y:490,w:120,h:20},
+      {x:210,y:360,w:120,h:20},{x:150,y:200,w:220,h:20}
     ],
     enemiesRaw:[
-      {xMin:300,xMax:450,y:400,speed:60},
-      {xMin:650,xMax:950,y:400,speed:65},
-      {xMin:1200,xMax:1500,y:400,speed:70},
-      {xMin:1700,xMax:1950,y:400,speed:75}
+      {xMin:220,xMax:300,y:1660,speed:50},
+      {xMin:120,xMax:200,y:1270,speed:55},
+      {xMin:220,xMax:300,y:880,speed:60},
+      {xMin:120,xMax:200,y:490,speed:65}
     ],
     powerups:[],
-    goalX:1950,
-    playerStart:{x:60,y:354}
+    goalY:230,
+    playerStart:{x:260,y:1874}
   },
   {
     name:'Rio das Ilhas',
+    orientation:'h',
     width:2200,
     hazardType:'water',
     skyTop:'#7EC8E3', skyBottom:'#DFF6FF',
@@ -449,34 +479,39 @@ const PHASES = [
     playerStart:{x:60,y:354}
   },
   {
-    name:'Céu Estrelado',
-    width:2600,
-    hazardType:'pit',
+    name:'Torre Estelar',
+    orientation:'v',
+    width:520,
+    height:2200,
     skyTop:'#1B1A3A', skyBottom:'#3D348B',
-    groundColor:'#5C5470', groundEdgeColor:'#403A57', platformColor:'#7A6250',
+    platformColor:'#7A6250',
     enemyType:'alien',
     decor:[
-      {type:'circle', x:800, y:70, r:34, color:'#EDEBFF'},
-      {type:'star', x:80,y:30},{type:'star', x:200,y:100},{type:'star', x:330,y:50},
-      {type:'star', x:460,y:90},{type:'star', x:600,y:30},{type:'star', x:700,y:110},
-      {type:'star', x:900,y:60},{type:'star', x:40,y:140},{type:'star', x:520,y:140}
+      {type:'circle', x:400, y:60, r:30, color:'#EDEBFF'},
+      {type:'star', x:80,y:30},{type:'star', x:330,y:80},{type:'star', x:460,y:140},
+      {type:'star', x:60,y:220},{type:'star', x:400,y:280},{type:'star', x:150,y:380},
+      {type:'star', x:450,y:440},{type:'star', x:70,y:520},{type:'star', x:380,y:600},
+      {type:'star', x:180,y:700},{type:'star', x:420,y:780},{type:'star', x:90,y:860}
     ],
-    gaps:[[380,480],[800,920],[1250,1370],[1700,1810],[2150,2270]],
+    gaps:[],
     platforms:[
-      {x:180,y:280,w:110,h:20},{x:560,y:260,w:120,h:20},{x:960,y:290,w:130,h:20},
-      {x:1400,y:270,w:120,h:20},{x:1830,y:280,w:140,h:20},{x:2290,y:260,w:130,h:20}
+      {x:190,y:2120,w:140,h:20},{x:110,y:1990,w:120,h:20},{x:210,y:1860,w:120,h:20},
+      {x:110,y:1730,w:120,h:20},{x:210,y:1600,w:120,h:20},{x:110,y:1470,w:120,h:20},
+      {x:210,y:1340,w:120,h:20},{x:110,y:1210,w:120,h:20},{x:210,y:1080,w:120,h:20},
+      {x:110,y:950,w:120,h:20},{x:210,y:820,w:120,h:20},{x:110,y:690,w:120,h:20},
+      {x:210,y:560,w:120,h:20},{x:110,y:430,w:120,h:20},{x:210,y:300,w:120,h:20},
+      {x:150,y:170,w:220,h:20}
     ],
     enemiesRaw:[
-      {xMin:150,xMax:360,y:400,speed:100},
-      {xMin:600,xMax:790,y:340,speed:110},
-      {xMin:960,xMax:1220,y:400,speed:115},
-      {xMin:1420,xMax:1650,y:330,speed:120},
-      {xMin:1840,xMax:2100,y:400,speed:125},
-      {xMin:2300,xMax:2560,y:380,speed:130}
+      {xMin:220,xMax:300,y:1860,speed:90},
+      {xMin:120,xMax:200,y:1470,speed:100},
+      {xMin:220,xMax:300,y:1080,speed:110},
+      {xMin:120,xMax:200,y:690,speed:120},
+      {xMin:220,xMax:300,y:300,speed:130}
     ],
-    powerups:[{x:660,y:200}],
-    goalX:2560,
-    playerStart:{x:60,y:354}
+    powerups:[{x:170,y:1250}],
+    goalY:200,
+    playerStart:{x:260,y:2074}
   }
 ];
 
@@ -488,7 +523,7 @@ let difficulty = 1, diffMult = 0.7;
 let score = 0, lives = 3, best = 0;
 let currentPhaseIdx = 0, currentPhase = null;
 let running = false, lastTs = 0, elapsed = 0, invulnT = 0, stepAcc = 0;
-let cameraX = 0;
+let cameraX = 0, cameraY = 0;
 let atkCooldown = 0, spinCooldown = 0, spinTimer = 0, lastAttackAt = -10, flightTimer = 0;
 const playerName = 'Dragão';
 
@@ -514,10 +549,11 @@ function updateHUD(){
 
 function loadPhase(idx){
   const def = PHASES[idx];
+  const isVertical = def.orientation === 'v';
   currentPhase = {
     ...def,
-    segments: groundSegments(def.width, def.gaps),
-    coins: genCoins(def.width, def.gaps, def.platforms),
+    segments: isVertical ? [] : groundSegments(def.width, def.gaps),
+    coins: isVertical ? genCoinsFromPlatforms(def.platforms) : genCoins(def.width, def.gaps, def.platforms),
     enemies: def.enemiesRaw.map(e => ({...e, x:e.xMin, dir:1})),
     platforms: def.platforms.map(p => ({...p, prevX:p.x})),
     powerups: def.powerups.map(p => ({...p, taken:false})),
@@ -528,6 +564,7 @@ function loadPhase(idx){
   player.vx = 0; player.vy = 0; player.onGround = false; player.facing = 1; player.ridingPlatform = null;
   invulnT = 1.0;
   stepAcc = 0;
+  cameraY = 0;
   atkCooldown = 0; spinCooldown = 0; spinTimer = 0; lastAttackAt = -10; flightTimer = 0;
   cameraX = 0;
   updateHUD();
@@ -536,7 +573,7 @@ function loadPhase(idx){
 function spawnFx(worldX, worldY, text, cls){
   const scale = boardBox.clientWidth / W;
   const screenX = (worldX - cameraX) * scale;
-  const screenY = worldY * scale;
+  const screenY = (worldY - cameraY) * scale;
   const el = document.createElement('div');
   el.className = 'fx' + (cls ? (' '+cls) : '');
   el.textContent = text;
@@ -724,11 +761,12 @@ function update(dt){
     }
   }
 
-  if(flightTimer <= 0 && player.y > H + 60){
+  const deathY = currentPhase.orientation === 'v' ? currentPhase.height + 80 : H + 60;
+  if(flightTimer <= 0 && player.y > deathY){
     hitPlayer();
     return;
   }
-  if(player.y > H + 200){ player.y = H + 60; }
+  if(player.y > deathY + 200){ player.y = deathY + 60; }
 
   currentPhase.coins.forEach(c => {
     if(c.taken) return;
@@ -775,7 +813,7 @@ function update(dt){
         break;
       }
     }
-    if(hit || f.x < cameraX-100 || f.x > cameraX+W+100){
+    if(hit || f.x < -60 || f.x > currentPhase.width+60){
       currentPhase.fireballs.splice(i,1);
     }
   }
@@ -804,13 +842,25 @@ function update(dt){
     }
   }
 
-  if(player.x + halfW >= currentPhase.goalX){
-    phaseComplete();
-    return;
+  if(currentPhase.orientation === 'v'){
+    if(player.y <= currentPhase.goalY){
+      phaseComplete();
+      return;
+    }
+  } else {
+    if(player.x + halfW >= currentPhase.goalX){
+      phaseComplete();
+      return;
+    }
   }
 
-  const viewW = W;
-  cameraX = Math.max(0, Math.min(Math.max(0,currentPhase.width - viewW), player.x - viewW/2));
+  if(currentPhase.orientation === 'v'){
+    cameraY = Math.max(0, Math.min(Math.max(0, currentPhase.height - H), player.y - H/2));
+    cameraX = -Math.max(0, (W - currentPhase.width)/2);
+  } else {
+    cameraX = Math.max(0, Math.min(Math.max(0, currentPhase.width - W), player.x - W/2));
+    cameraY = 0;
+  }
 }
 
 function drawCloud(x,y,s){
@@ -828,15 +878,18 @@ function drawSky(){
   grad.addColorStop(1, currentPhase.skyBottom);
   ctx.fillStyle = grad;
   ctx.fillRect(0,0,W,H);
+  const parallaxY = currentPhase.orientation === 'v' ? cameraY*0.3 : 0;
   currentPhase.decor.forEach(d => {
+    const dy = d.y - parallaxY;
+    if(dy < -60 || dy > H+60) return;
     if(d.type === 'circle'){
       ctx.fillStyle = d.color;
-      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(d.x, dy, d.r, 0, Math.PI*2); ctx.fill();
     } else if(d.type === 'cloud'){
-      drawCloud(d.x, d.y, d.scale);
+      drawCloud(d.x, dy, d.scale);
     } else if(d.type === 'star'){
       ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      ctx.fillRect(d.x, d.y, 3, 3);
+      ctx.fillRect(d.x, dy, 3, 3);
     }
   });
 }
@@ -947,6 +1000,17 @@ function drawGoalFlag(){
   ctx.closePath(); ctx.fill();
 }
 
+function drawGoalMarkerVertical(){
+  const gx = currentPhase.width/2, gy = currentPhase.goalY - 10;
+  const pulse = 1 + Math.sin(elapsed*4)*0.08;
+  ctx.beginPath(); ctx.arc(gx, gy, 34*pulse, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(6,214,160,0.22)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(gx, gy, 22*pulse, 0, Math.PI*2);
+  ctx.strokeStyle = '#06D6A0'; ctx.lineWidth = 4; ctx.stroke();
+  ctx.fillStyle = '#FFD166';
+  drawStarShape(ctx, gx, gy, 13, 5);
+}
+
 function drawEnemies(){
   const drawer = ENEMY_DRAWERS[currentPhase.enemyType] || drawSlime;
   currentPhase.enemies.forEach((e,i) => {
@@ -1004,12 +1068,12 @@ function draw(){
   ctx.clearRect(0,0,W,H);
   drawSky();
   ctx.save();
-  ctx.translate(-cameraX, 0);
+  ctx.translate(-cameraX, -cameraY);
   drawGround();
   drawPlatforms();
   drawCoins();
   drawPowerups();
-  drawGoalFlag();
+  if(currentPhase.orientation === 'v') drawGoalMarkerVertical(); else drawGoalFlag();
   drawFireballs();
   drawEnemies();
   drawPlayer();
