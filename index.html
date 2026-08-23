@@ -2925,16 +2925,7 @@ function renderOnboarding(){
       cloudSyncProfile();
     }
     playStartSound();
-    document.querySelectorAll('.title-shape').forEach(el => el.remove());
-    if(!requestedTabParam){
-      window.location.replace('menu.html');
-      return;
-    }
-    cardArea.classList.add('card');
-    document.body.classList.remove('cover-mode');
-    updateGreeting();
-    document.getElementById('pageHeader').style.display = 'block';
-    setTab(requestedTab);
+    window.location.replace('menu.html');
   };
   document.getElementById('startBtn').onclick = confirmStart;
 }
