@@ -60,6 +60,17 @@
   .win{ text-align:center; }
   .win .big-emoji{ font-size:3rem; }
   .stars{ font-size:1.8rem; margin:6px 0 14px; }
+  .card-front img{ width:100%; height:100%; object-fit:cover; border-radius:14px; }
+  .photo-section{ margin-top:18px; border-top:1px solid #EFEBFA; padding-top:14px; text-align:center; }
+  .photo-label{ font-family:'Baloo 2', cursive; color:var(--plum-soft); font-size:0.85rem; margin:0 0 8px; }
+  .photo-list{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:10px; }
+  .photo-thumb{ position:relative; width:48px; height:48px; }
+  .photo-thumb img{ width:100%; height:100%; border-radius:50%; object-fit:cover; box-shadow:0 3px 8px rgba(0,0,0,0.15); }
+  .photo-thumb .rm{
+    position:absolute; top:-4px; right:-4px; width:18px; height:18px; border-radius:50%; background:#FF6B6B;
+    color:white; border:none; font-size:0.65rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .btn-ghost{ background:#F0EEFC; color:var(--plum-soft); font-size:0.85rem; padding:9px 16px; width:auto; }
 </style>
 </head>
 <body>
@@ -76,6 +87,12 @@
       <div class="diff-opt" data-n="6">🟢 Fácil <small>6 pares</small></div>
       <div class="diff-opt" data-n="8">🟡 Médio <small>8 pares</small></div>
       <div class="diff-opt" data-n="10">🔴 Difícil <small>10 pares</small></div>
+    </div>
+    <div class="photo-section">
+      <p class="photo-label">Fotos especiais (opcional)</p>
+      <div class="photo-list" id="photoList"></div>
+      <button class="btn btn-ghost" id="btnAddPhoto">📷 Adicionar foto</button>
+      <input type="file" id="photoInput" accept="image/*" style="display:none;">
     </div>
   </div>
 
@@ -99,7 +116,166 @@
 </div>
 
 <script>
-const EMOJI_POOL = ['🐶','🐱','🐰','🐻','🦊','🐼','🐸','🦁','🐵','🐷','🐔','🦄'];
+function drawTDBase(c, color){
+  c.beginPath(); c.arc(0,0,17,0,Math.PI*2); c.fillStyle = color; c.fill();
+  c.strokeStyle = 'rgba(0,0,0,0.15)'; c.lineWidth = 2; c.stroke();
+}
+function drawTDEyes(c){
+  c.fillStyle = '#2C2A4A';
+  c.beginPath(); c.arc(-5,3,2.4,0,Math.PI*2); c.fill();
+  c.beginPath(); c.arc(5,3,2.4,0,Math.PI*2); c.fill();
+}
+function drawPikachuTD(c){
+  c.fillStyle = '#FFD166';
+  c.beginPath(); c.moveTo(-13,-9); c.lineTo(-19,-21); c.lineTo(-7,-15); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(13,-9); c.lineTo(19,-21); c.lineTo(7,-15); c.closePath(); c.fill();
+  c.fillStyle = '#2C2A4A';
+  c.beginPath(); c.arc(-18,-20,2.2,0,Math.PI*2); c.fill();
+  c.beginPath(); c.arc(18,-20,2.2,0,Math.PI*2); c.fill();
+  drawTDBase(c, '#FFD166'); drawTDEyes(c);
+  c.fillStyle = '#FF5D6C';
+  c.beginPath(); c.arc(-11,7,2.4,0,Math.PI*2); c.fill();
+  c.beginPath(); c.arc(11,7,2.4,0,Math.PI*2); c.fill();
+}
+function drawPerolaTD(c){
+  c.fillStyle = '#F5F5F5';
+  c.beginPath(); c.moveTo(-13,-8); c.lineTo(-18,-19); c.lineTo(-6,-14); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(13,-8); c.lineTo(18,-19); c.lineTo(6,-14); c.closePath(); c.fill();
+  drawTDBase(c, '#FAFAFA');
+  c.fillStyle = '#2C2A4A';
+  c.beginPath(); c.ellipse(-9,-2,4,5,-0.3,0,Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(8,8,4,5,0.3,0,Math.PI*2); c.fill();
+  drawTDEyes(c);
+  c.fillStyle = '#FF8FA8';
+  c.beginPath(); c.moveTo(0,8); c.lineTo(-2,6); c.lineTo(2,6); c.closePath(); c.fill();
+}
+function drawJhulyaTD(c){
+  c.fillStyle = '#6B4226';
+  c.beginPath(); c.arc(-16,0,7,0,Math.PI*2); c.fill();
+  c.beginPath(); c.arc(16,0,7,0,Math.PI*2); c.fill();
+  drawTDBase(c, '#FF6FA5'); drawTDEyes(c);
+  c.fillStyle = '#FFD166';
+  c.beginPath(); c.moveTo(-6,-14); c.lineTo(0,-9); c.lineTo(-6,-4); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(6,-14); c.lineTo(0,-9); c.lineTo(6,-4); c.closePath(); c.fill();
+  c.fillStyle = '#E0A800';
+  c.beginPath(); c.arc(0,-9,2.4,0,Math.PI*2); c.fill();
+}
+function drawLorenzoTD(c){
+  drawTDBase(c, '#4EA8DE'); drawTDEyes(c);
+  c.fillStyle = '#FF5D6C';
+  c.beginPath(); c.moveTo(-13,-19); c.lineTo(13,-19); c.lineTo(13,-4); c.quadraticCurveTo(0,-14,-13,-4); c.closePath(); c.fill();
+  c.fillStyle = '#E0434F';
+  c.beginPath(); c.ellipse(0,-4,13,4,0,0,Math.PI*2); c.fill();
+}
+function drawPapaiTD(c){
+  c.fillStyle = '#3A2A1E';
+  c.beginPath(); c.arc(0,0,18.5,Math.PI,0); c.fill();
+  drawTDBase(c, '#3DA35D'); drawTDEyes(c);
+  c.fillStyle = '#3A2A1E';
+  c.beginPath();
+  c.moveTo(-7,8); c.quadraticCurveTo(0,5,7,8); c.quadraticCurveTo(0,11,-7,8);
+  c.closePath(); c.fill();
+}
+function drawMamaeTD(c){
+  c.fillStyle = '#4A2E1A';
+  c.beginPath(); c.arc(-15,4,8,0,Math.PI*2); c.fill();
+  c.beginPath(); c.arc(15,4,8,0,Math.PI*2); c.fill();
+  c.beginPath(); c.arc(0,-4,18,Math.PI,0); c.fill();
+  drawTDBase(c, '#9B6FDE'); drawTDEyes(c);
+  c.fillStyle = '#E0507A';
+  c.beginPath(); c.ellipse(0,8,3.6,2,0,0,Math.PI*2); c.fill();
+}
+function drawMonsterBody(c, color){ c.beginPath(); c.ellipse(0,1,15,16,0,0,Math.PI*2); c.fillStyle=color; c.fill(); }
+function drawMonsterEye(c,x,y,r){
+  c.fillStyle='white'; c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+  c.fillStyle='#1a1a2e'; c.beginPath(); c.arc(x,y,r*0.45,0,Math.PI*2); c.fill();
+}
+function drawMonsterMouth(c){
+  c.fillStyle='#7A2B3A';
+  c.beginPath(); c.moveTo(-8,9); c.lineTo(8,9); c.lineTo(6,16); c.lineTo(-6,16); c.closePath(); c.fill();
+  c.fillStyle='white';
+  c.beginPath(); c.moveTo(-5,9); c.lineTo(-2,14); c.lineTo(1,9); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(2,9); c.lineTo(5,14); c.lineTo(8,9); c.closePath(); c.fill();
+}
+function drawMonsterBlue(c){
+  c.fillStyle='#4FC3F7';
+  c.beginPath(); c.ellipse(-16,-5,6,11,0.4,0,Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(16,-5,6,11,-0.4,0,Math.PI*2); c.fill();
+  drawMonsterBody(c,'#4FC3F7'); drawMonsterEye(c,-6,-4,6); drawMonsterEye(c,6,-6,5); drawMonsterMouth(c);
+}
+function drawMonsterRed(c){
+  drawMonsterBody(c,'#FF6B6B');
+  c.fillStyle='#FF6B6B';
+  for(let i=-2;i<=2;i++){ c.beginPath(); c.moveTo(i*5-2,-14); c.lineTo(i*5+2,-14); c.lineTo(i*5,-21); c.closePath(); c.fill(); }
+  drawMonsterEye(c,0,-3,8); drawMonsterMouth(c);
+}
+function drawMonsterOrange(c){
+  c.fillStyle='#FFA94D';
+  c.beginPath(); c.moveTo(-14,-9); c.lineTo(-19,-21); c.lineTo(-9,-12); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(14,-9); c.lineTo(19,-21); c.lineTo(9,-12); c.closePath(); c.fill();
+  drawMonsterBody(c,'#FFA94D'); drawMonsterEye(c,-8,-5,5); drawMonsterEye(c,0,-9,4.5); drawMonsterEye(c,8,-5,5); drawMonsterMouth(c);
+}
+function drawMonsterGreen(c){
+  c.fillStyle='#7ED957';
+  c.beginPath();
+  c.moveTo(-15,3); c.quadraticCurveTo(-16,-17,0,-18); c.quadraticCurveTo(16,-17,15,3);
+  c.lineTo(11,9); c.lineTo(6,3); c.lineTo(1,9); c.lineTo(-4,3); c.lineTo(-9,9); c.lineTo(-15,3);
+  c.closePath(); c.fill();
+  drawMonsterEye(c,0,-5,7);
+  c.fillStyle='#FF7A9C'; c.beginPath(); c.ellipse(0,8,4,6,0,0,Math.PI*2); c.fill();
+}
+
+function renderCharThumb(drawer, size){
+  const cv = document.createElement('canvas'); cv.width = size; cv.height = size;
+  const t = cv.getContext('2d');
+  t.translate(size/2, size/2);
+  t.scale(size/44, size/44);
+  drawer(t);
+  return cv.toDataURL();
+}
+const CHAR_DRAWERS = [drawPikachuTD, drawPerolaTD, drawJhulyaTD, drawLorenzoTD, drawPapaiTD, drawMamaeTD, drawMonsterBlue, drawMonsterRed, drawMonsterOrange, drawMonsterGreen];
+const CHAR_THUMBS = CHAR_DRAWERS.map(d => renderCharThumb(d, 140));
+
+let customPhotos = [];
+function loadPhotos(){ try{ customPhotos = JSON.parse(localStorage.getItem('memoria_photos')||'[]'); }catch(e){ customPhotos = []; } }
+function savePhotos(){ try{ localStorage.setItem('memoria_photos', JSON.stringify(customPhotos)); }catch(e){} }
+function renderPhotoList(){
+  const wrap = document.getElementById('photoList');
+  wrap.innerHTML = '';
+  customPhotos.forEach((src, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = `<img src="${src}" alt="Foto ${i+1}"><button class="rm" data-i="${i}">✕</button>`;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('.rm').forEach(btn => {
+    btn.onclick = () => { customPhotos.splice(parseInt(btn.dataset.i), 1); savePhotos(); renderPhotoList(); };
+  });
+}
+document.getElementById('btnAddPhoto').addEventListener('click', () => document.getElementById('photoInput').click());
+document.getElementById('photoInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 160;
+      const cv = document.createElement('canvas'); cv.width = size; cv.height = size;
+      const cctx = cv.getContext('2d');
+      const scale = Math.max(size/img.width, size/img.height);
+      const dw = img.width*scale, dh = img.height*scale;
+      cctx.drawImage(img, (size-dw)/2, (size-dh)/2, dw, dh);
+      customPhotos.push(cv.toDataURL('image/jpeg', 0.85));
+      savePhotos(); renderPhotoList();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+loadPhotos(); renderPhotoList();
+
 let pairsCount = 6, cards = [], flipped = [], matchedCount = 0, moves = 0, lock = false;
 let audioCtx = null;
 
@@ -126,10 +302,17 @@ function playWinSound(){ [523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=> pl
 
 function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
+function buildFacePool(n){
+  const photoFaces = shuffle(customPhotos).slice(0, n).map(src => ({src}));
+  const need = n - photoFaces.length;
+  const charFaces = shuffle(CHAR_THUMBS).slice(0, Math.max(0, need)).map(src => ({src}));
+  return [...photoFaces, ...charFaces];
+}
+
 function startGame(n){
   pairsCount = n; matchedCount = 0; moves = 0; flipped = []; lock = false;
-  const chosen = shuffle(EMOJI_POOL).slice(0, pairsCount);
-  cards = shuffle([...chosen, ...chosen]).map((e,i)=>({id:i, emoji:e, matched:false}));
+  const chosen = buildFacePool(pairsCount);
+  cards = shuffle([...chosen, ...chosen]).map((f,i)=>({id:i, src:f.src, matched:false}));
   renderBoard(); updateStats();
   document.getElementById('setup').style.display='none';
   document.getElementById('gameArea').style.display='block';
@@ -144,7 +327,7 @@ function renderBoard(){
     const el = document.createElement('button');
     el.className = 'card';
     el.setAttribute('data-id', c.id);
-    el.innerHTML = `<div class="card-inner"><div class="card-back">❓</div><div class="card-front">${c.emoji}</div></div>`;
+    el.innerHTML = `<div class="card-inner"><div class="card-back">❓</div><div class="card-front"><img src="${c.src}" alt="carta"></div></div>`;
     el.onclick = ()=>flipCard(c.id);
     grid.appendChild(el);
   });
@@ -169,7 +352,7 @@ function flipCard(id){
     moves++; updateStats(); lock = true;
     const [a,b] = flipped;
     const ca = cards.find(c=>c.id===a), cb = cards.find(c=>c.id===b);
-    if(ca.emoji === cb.emoji){
+    if(ca.src === cb.src){
       setTimeout(()=>{
         ca.matched = cb.matched = true;
         document.querySelector(`.card[data-id="${a}"]`).classList.add('matched');
