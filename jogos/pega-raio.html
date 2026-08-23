@@ -88,6 +88,7 @@
   }
   .hole.up .pop{ transform:translate(-50%, 8%); }
   .critter{ width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 4px 4px rgba(0,0,0,0.25)); }
+  .critter.is-photo{ object-fit:cover; border-radius:50%; }
   .bolt{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:min(12vw, 4.6rem); line-height:1; filter:drop-shadow(0 4px 4px rgba(0,0,0,0.25)); }
   .overlay{
     position:fixed; inset:0; background:rgba(61,52,139,0.55); display:none; align-items:center; justify-content:center; padding:20px; z-index:10;
@@ -207,7 +208,7 @@ const BOMB_HTML = `<span class="bolt">💣</span>`;
 
 function setCritterPhoto(dataUrl, save){
   CRITTER_SRC = dataUrl;
-  CRITTER_HTML = `<img class="critter" src="${CRITTER_SRC}" alt="Personagem">`;
+  CRITTER_HTML = `<img class="critter is-photo" src="${CRITTER_SRC}" alt="Personagem">`;
   const preview = document.getElementById('photoPreviewImg');
   preview.src = dataUrl; preview.style.display = 'block';
   document.getElementById('btnResetPhoto').style.display = 'inline-block';
