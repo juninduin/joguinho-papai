@@ -14,54 +14,55 @@
   *{box-sizing:border-box;}
   html,body{ height:100%; }
   body{
-    margin:0; min-height:100vh; min-height:100svh;
+    margin:0; height:100vh; height:100svh; overflow:hidden;
     background:
       radial-gradient(circle at 12% 15%, #DCEEFB 0%, transparent 40%),
       radial-gradient(circle at 88% 80%, #FDE9DC 0%, transparent 45%),
       var(--sky);
     font-family:'Quicksand', sans-serif; color:var(--ink);
     display:flex; flex-direction:column; align-items:center;
-    padding:10px 12px 20px;
+    padding:8px 12px;
   }
   h1,h2,.display{ font-family:'Baloo 2', cursive; }
-  .app{ width:100%; max-width:460px; display:flex; flex-direction:column; min-height:0; position:relative; }
-  .topnav{ display:flex; align-items:center; margin-bottom:6px; flex:0 0 auto; }
-  .backbtn{ width:36px; height:36px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); }
-  header.top{ text-align:center; margin-bottom:6px; flex:0 0 auto; }
-  header.top h1{ font-size:1.2rem; color:var(--plum); margin:0 0 2px; }
-  header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.8rem; }
+  .app{ width:100%; max-width:460px; height:100%; display:flex; flex-direction:column; min-height:0; position:relative; }
+  .topnav{ display:flex; align-items:center; gap:8px; margin-bottom:2px; flex:0 0 auto; }
+  .backbtn{ width:30px; height:30px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:0.95rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); flex:0 0 auto; }
+  .mini-title{ font-family:'Baloo 2', cursive; font-size:0.78rem; color:var(--plum); }
 
-  .board{ position:relative; flex:1 1 auto; display:flex; flex-direction:column; gap:10px; }
+  .hand-row{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; flex:0 0 auto; padding:3px 0; }
 
-  .side{ display:flex; flex-direction:column; gap:6px; }
-  .side-label{ font-family:'Baloo 2', cursive; font-size:0.72rem; color:var(--plum-soft); text-align:center; }
+  .board{ position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; overflow-y:auto; }
+  .duel-card{ display:flex; justify-content:center; width:100%; flex:0 0 auto; }
 
-  .table-felt{
-    background:radial-gradient(ellipse at center, #2E8B6E 0%, #1F6E56 70%, #17594545 100%);
-    border-radius:28px; padding:12px; box-shadow:inset 0 0 30px rgba(0,0,0,0.25), 0 10px 24px rgba(31,22,74,0.2);
-  }
   .card{
-    background:white; border-radius:20px; padding:14px 16px; box-shadow:0 10px 24px rgba(61,52,139,0.2);
-    position:relative; overflow:hidden; border:4px solid transparent; transition:border-color .2s ease, box-shadow .2s ease;
+    width:min(44vw, 168px); aspect-ratio:5/7; background:white; border-radius:16px; padding:9px 10px 8px;
+    box-shadow:0 10px 22px rgba(61,52,139,0.22); position:relative; overflow:hidden; border:4px solid transparent;
+    display:flex; flex-direction:column; transition:border-color .2s ease, box-shadow .2s ease;
   }
-  .card.win-glow{ border-color:var(--mint); box-shadow:0 0 0 6px rgba(6,214,160,0.35), 0 10px 24px rgba(61,52,139,0.2); }
+  .card.win-glow{ border-color:var(--mint); box-shadow:0 0 0 6px rgba(6,214,160,0.35), 0 10px 22px rgba(61,52,139,0.2); }
   .card.hit-shake{ animation:cardShake .4s ease; border-color:#FF6B6B; }
   @keyframes cardShake{
     0%,100%{ transform:translateX(0); } 20%{ transform:translateX(-8px); } 40%{ transform:translateX(7px); }
     60%{ transform:translateX(-5px); } 80%{ transform:translateX(4px); }
   }
-  .card-head{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
-  .card-name{ font-family:'Baloo 2', cursive; font-size:1.25rem; }
-  .card-hp{ font-family:'Baloo 2', cursive; font-size:1.05rem; }
-  .hpbar-wrap{ height:16px; border-radius:9px; background:#EEE; overflow:hidden; margin:7px 0 10px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.1); }
+  .card-head{ display:flex; align-items:center; justify-content:space-between; gap:4px; flex:0 0 auto; }
+  .card-name{ font-family:'Baloo 2', cursive; font-size:0.88rem; }
+  .card-hp{ font-family:'Baloo 2', cursive; font-size:0.68rem; }
+  .hpbar-wrap{ height:8px; border-radius:5px; background:#EEE; overflow:hidden; margin:4px 0; flex:0 0 auto; box-shadow:inset 0 2px 3px rgba(0,0,0,0.1); }
   .hpbar-fill{ height:100%; transition:width .3s ease; }
-  .card-body{ display:flex; align-items:center; gap:14px; }
   .card-portrait{
-    width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    font-size:3.4rem; flex:0 0 auto; box-shadow:inset 0 -6px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.18);
+    flex:1 1 auto; min-height:0; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:3.2rem; box-shadow:inset 0 -6px 0 rgba(0,0,0,0.1);
   }
-  .card-meta{ font-size:0.86rem; font-weight:700; color:var(--plum-soft); line-height:1.5; }
-  .weak-tag{ display:inline-block; margin-top:2px; }
+  .card-meta{ font-size:0.6rem; font-weight:700; color:var(--plum-soft); line-height:1.25; flex:0 0 auto; }
+  .weak-tag{ display:inline-block; margin-top:1px; }
+
+  .vs-divider{ display:flex; flex-direction:column; align-items:center; gap:2px; flex:0 0 auto; position:relative; z-index:2; margin:-6px 0; }
+  .vs-txt{
+    width:32px; height:32px; border-radius:50%; background:linear-gradient(180deg,#FFD166,#E0A800);
+    color:white; font-family:'Baloo 2', cursive; font-weight:800; font-size:0.78rem;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.22), 0 0 0 3px white;
+  }
 
   .big-flash{
     position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.5); z-index:30;
@@ -81,19 +82,20 @@
     100%{ transform:translate(-50%,-50%) scale(0.9); opacity:0; }
   }
 
-  .attacks{ display:flex; gap:8px; margin-top:8px; }
+  .attacks{ display:flex; flex-direction:column; gap:4px; margin-top:5px; flex:0 0 auto; }
   button.atk-btn{
-    flex:1; font-family:'Baloo 2', cursive; font-size:0.78rem; border:none; border-radius:12px; padding:9px 6px;
-    cursor:pointer; color:white; box-shadow:0 4px 0 rgba(0,0,0,0.18); transition:transform .1s ease, box-shadow .1s ease;
+    font-family:'Baloo 2', cursive; font-size:0.64rem; border:none; border-radius:9px; padding:5px 6px;
+    cursor:pointer; color:white; box-shadow:0 3px 0 rgba(0,0,0,0.18); transition:transform .1s ease, box-shadow .1s ease;
+    display:flex; align-items:center; justify-content:space-between; gap:4px;
   }
   button.atk-btn:active{ transform:translateY(3px); box-shadow:none; }
   button.atk-btn:disabled{ opacity:0.45; cursor:default; }
-  button.atk-btn .dmg{ display:block; font-size:0.68rem; opacity:0.9; }
+  button.atk-btn .dmg{ font-size:0.6rem; opacity:0.95; white-space:nowrap; }
 
-  .hand-strip{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+  .hand-row{ }
   .mini-card{
-    width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-    font-size:1.4rem; position:relative; cursor:pointer; border:3px solid transparent; -webkit-tap-highlight-color:transparent;
+    width:36px; height:50px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem; position:relative; cursor:pointer; border:3px solid transparent; -webkit-tap-highlight-color:transparent;
     box-shadow:0 3px 8px rgba(61,52,139,0.15); transition:transform .1s ease;
   }
   .mini-card:active{ transform:scale(0.92); }
@@ -103,8 +105,8 @@
   @keyframes pulseCard{ 0%,100%{ box-shadow:0 3px 8px rgba(61,52,139,0.15);} 50%{ box-shadow:0 0 0 5px rgba(255,209,102,0.6);} }
 
   .battle-log{
-    text-align:center; font-weight:700; font-size:0.8rem; color:var(--plum); min-height:20px;
-    background:white; border-radius:12px; padding:6px 10px; box-shadow:0 4px 10px rgba(61,52,139,0.1);
+    text-align:center; font-weight:700; font-size:0.62rem; color:var(--plum); min-height:14px; max-width:220px;
+    background:white; border-radius:10px; padding:4px 9px; box-shadow:0 4px 10px rgba(61,52,139,0.1);
   }
 
   .dmg-pop{
@@ -141,42 +143,40 @@
 </head>
 <body>
 <div class="app">
-  <div class="topnav"><a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a></div>
-  <header class="top">
-    <h1>🎴 Duelo de Monstrinhos</h1>
-    <p>Ataque, use a fraqueza do tipo, e vença o computador!</p>
-  </header>
+  <div class="topnav">
+    <a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a>
+    <span class="mini-title">🎴 Duelo de Monstrinhos — 🤖 Computador</span>
+  </div>
+
+  <div class="hand-row" id="aiHand"></div>
 
   <div class="board">
-    <div class="side" id="aiSide">
-      <div class="side-label">🤖 Computador</div>
+    <div class="duel-card ai" id="aiCardWrap">
       <div class="card" id="aiCard">
         <div class="card-head"><span class="card-name" id="aiName">-</span><span class="card-hp"><span id="aiHpNum">0</span> PS</span></div>
+        <div class="card-portrait" id="aiPortrait">🐣</div>
         <div class="hpbar-wrap"><div class="hpbar-fill" id="aiHpFill"></div></div>
-        <div class="card-body">
-          <div class="card-portrait" id="aiPortrait">🐣</div>
-          <div class="card-meta" id="aiMeta"></div>
-        </div>
+        <div class="card-meta" id="aiMeta"></div>
       </div>
-      <div class="hand-strip" id="aiHand"></div>
     </div>
 
-    <div class="battle-log" id="battleLog">Escolha o nível pra começar!</div>
+    <div class="vs-divider">
+      <span class="vs-txt">VS</span>
+      <div class="battle-log" id="battleLog">Escolha o nível pra começar!</div>
+    </div>
 
-    <div class="side" id="playerSide">
+    <div class="duel-card player" id="playerCardWrap">
       <div class="card" id="playerCard">
         <div class="card-head"><span class="card-name" id="playerName">-</span><span class="card-hp"><span id="playerHpNum">0</span> PS</span></div>
+        <div class="card-portrait" id="playerPortrait">🐣</div>
         <div class="hpbar-wrap"><div class="hpbar-fill" id="playerHpFill"></div></div>
-        <div class="card-body">
-          <div class="card-portrait" id="playerPortrait">🐣</div>
-          <div class="card-meta" id="playerMeta"></div>
-        </div>
+        <div class="card-meta" id="playerMeta"></div>
         <div class="attacks" id="playerAttacks"></div>
       </div>
-      <div class="hand-strip" id="playerHand"></div>
-      <div class="side-label">🧒 Você</div>
     </div>
   </div>
+
+  <div class="hand-row" id="playerHand"></div>
 
   <div class="overlay show" id="setupOverlay">
     <div class="big-emoji">🎴</div>
