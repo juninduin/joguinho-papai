@@ -432,7 +432,7 @@ let best = 0;
 
 const player = {
   x: MAP_W/2, y: MAP_H/2, hp: 100, maxHp: 100, weaponId:'bubble', grenades:1, score:0,
-  facing:{x:0,y:-1}, fireCooldown:0
+  facing:{x:0,y:-1}, fireCooldown:0, angle: Math.PI/2, targetAngle: Math.PI/2
 };
 let enemies = [], projectiles = [], pickups = [], grenadesActive = [];
 
@@ -613,10 +613,14 @@ function update(dt){
 
   const mag = Math.hypot(joy.dx, joy.dy);
   if(mag > 0.15){
-    const nx = joy.dx/Math.max(mag,1), ny = joy.dy/Math.max(mag,1);
     player.facing.x = joy.dx/mag; player.facing.y = joy.dy/mag;
+    player.targetAngle = Math.atan2(joy.dy, joy.dx);
     player.x += joy.dx*MOVE_SPEED*dt;
     player.y += joy.dy*MOVE_SPEED*dt;
+  }
+  if(player.targetAngle !== undefined){
+    let diff = ((player.targetAngle - player.angle + Math.PI*3) % (Math.PI*2)) - Math.PI;
+    player.angle += diff * Math.min(1, dt*12);
   }
   player.x = Math.max(PLAYER_RADIUS, Math.min(MAP_W-PLAYER_RADIUS, player.x));
   player.y = Math.max(PLAYER_RADIUS, Math.min(MAP_H-PLAYER_RADIUS, player.y));
@@ -728,10 +732,63 @@ function update(dt){
 }
 
 // ---------- draw ----------
+const LAKES = [
+  {x:300, y:280, r:150}, {x:1180, y:1220, r:120}, {x:1250, y:260, r:70}
+];
+const ROADS = [
+  {x1:300, y1:280, x2:750, y2:750}, {x1:750, y1:750, x2:1180, y2:1220}, {x1:750,y1:750,x2:1250,y2:260}
+];
+function buildingCluster(cx, cy, count){
+  const list = [];
+  for(let i=0;i<count;i++){
+    const ang = (Math.PI*2/count)*i + 0.3;
+    const dist = 55 + (i%2)*35;
+    list.push({
+      x: cx + Math.cos(ang)*dist - 30, y: cy + Math.sin(ang)*dist - 22,
+      w: 46 + (i%3)*10, h: 36 + (i%2)*14,
+      roof: ['#E86B5C','#4A8CFF','#E0A800','#7A5C9E'][i%4]
+    });
+  }
+  return list;
+}
+const CITY_A = buildingCluster(300, 1150, 6);
+const CITY_B = buildingCluster(1220, 500, 5);
+
 function drawGround(){
   ctx.fillStyle = '#8FCB7E';
   ctx.fillRect(0,0,MAP_W,MAP_H);
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2;
+
+  ctx.strokeStyle = '#D8C79A'; ctx.lineWidth = 26; ctx.lineCap = 'round';
+  ROADS.forEach(r => { ctx.beginPath(); ctx.moveTo(r.x1,r.y1); ctx.lineTo(r.x2,r.y2); ctx.stroke(); });
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2; ctx.setLineDash([14,10]);
+  ROADS.forEach(r => { ctx.beginPath(); ctx.moveTo(r.x1,r.y1); ctx.lineTo(r.x2,r.y2); ctx.stroke(); });
+  ctx.setLineDash([]);
+
+  LAKES.forEach(l => {
+    const grad = ctx.createRadialGradient(l.x-l.r*0.3, l.y-l.r*0.3, l.r*0.1, l.x, l.y, l.r);
+    grad.addColorStop(0, '#5FB6E0'); grad.addColorStop(1, '#1B6FA8');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2;
+    for(let i=0;i<3;i++){
+      ctx.beginPath();
+      ctx.arc(l.x, l.y, l.r*(0.4+i*0.2), Math.PI*0.1, Math.PI*0.7);
+      ctx.stroke();
+    }
+  });
+
+  [...CITY_A, ...CITY_B].forEach(b => {
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(b.x+4, b.y+5, b.w, b.h);
+    ctx.fillStyle = b.roof;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.fillRect(b.x, b.y, b.w, 6);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.fillRect(b.x+b.w*0.4, b.y+b.h*0.35, b.w*0.2, b.h*0.3);
+  });
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 2;
   for(let x=0;x<MAP_W;x+=80){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,MAP_H); ctx.stroke(); }
   for(let y=0;y<MAP_H;y+=80){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(MAP_W,y); ctx.stroke(); }
   ctx.strokeStyle = '#5C8A4A'; ctx.lineWidth = 10;
@@ -804,6 +861,7 @@ function drawPlayer(){
   ctx.translate(player.x, player.y);
   ctx.beginPath(); ctx.ellipse(0,15,14,5,0,0,Math.PI*2);
   ctx.fillStyle = 'rgba(0,0,0,0.16)'; ctx.fill();
+  ctx.rotate(player.angle - Math.PI/2);
   drawCharacterSprite(ctx, playerCharId);
   ctx.restore();
 }
