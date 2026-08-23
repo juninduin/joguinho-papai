@@ -176,6 +176,8 @@
             <button class="char-btn" data-char="perola"><img alt="Pérola"><span>Pérola</span></button>
             <button class="char-btn" data-char="jhulya"><img alt="Jhulya"><span>Jhulya</span></button>
             <button class="char-btn" data-char="lorenzo"><img alt="Lorenzo"><span>Lorenzo</span></button>
+            <button class="char-btn" data-char="papai"><img alt="Papai"><span>Papai</span></button>
+            <button class="char-btn" data-char="mamae"><img alt="Mamãe"><span>Mamãe</span></button>
           </div>
           <p class="pick-label">Escolha o nível:</p>
           <div class="level-choices">
@@ -482,7 +484,46 @@ function drawLorenzo(c, w, h){
   c.beginPath(); c.arc(2, -h/2-16, 2.2, 0, Math.PI*2); c.fill();
 }
 
-const CHARACTER_DRAWERS = { pikachu:drawPikachu, perola:drawPerola, jhulya:drawJhulya, lorenzo:drawLorenzo };
+function drawPapai(c, w, h){
+  // short dark hair
+  c.fillStyle = '#3A2A1E';
+  c.beginPath();
+  c.moveTo(-w/2-1, -h/2+4);
+  c.quadraticCurveTo(-w/2-1, -h/2-10, 2, -h/2-10);
+  c.quadraticCurveTo(w/2+2, -h/2-10, w/2+1, -h/2+4);
+  c.closePath();
+  c.fill();
+
+  drawBodyBase(c, w, h, '#3DA35D', '#DFF5E6');
+  drawEyes(c, h);
+
+  // mustache
+  c.fillStyle = '#3A2A1E';
+  c.beginPath();
+  c.moveTo(-6, -h/2+23);
+  c.quadraticCurveTo(-1, -h/2+21, 4, -h/2+23);
+  c.quadraticCurveTo(-1, -h/2+26, -6, -h/2+23);
+  c.closePath();
+  c.fill();
+}
+
+function drawMamae(c, w, h){
+  // long hair
+  c.fillStyle = '#4A2E1A';
+  c.beginPath(); c.ellipse(-w/2-3, h/2-14, 7, 20, 0.1, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(w/2+3, h/2-14, 7, 20, -0.1, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(0, -h/2, 15, 10, 0, Math.PI, 0); c.fill();
+
+  drawBodyBase(c, w, h, '#9B6FDE', '#EFE5FB');
+  drawEyes(c, h);
+
+  // earrings
+  c.fillStyle = '#FFD166';
+  c.beginPath(); c.arc(-w/2+1, -h/2+22, 2, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.arc(w/2-1, -h/2+22, 2, 0, Math.PI*2); c.fill();
+}
+
+const CHARACTER_DRAWERS = { pikachu:drawPikachu, perola:drawPerola, jhulya:drawJhulya, lorenzo:drawLorenzo, papai:drawPapai, mamae:drawMamae };
 function drawCharacterSprite(c, charId, w, h){
   (CHARACTER_DRAWERS[charId] || drawPikachu)(c, w, h);
 }
@@ -501,7 +542,9 @@ const CHARACTERS = [
   {id:'pikachu', name:'Pikachu'},
   {id:'perola', name:'Pérola'},
   {id:'jhulya', name:'Jhulya'},
-  {id:'lorenzo', name:'Lorenzo'}
+  {id:'lorenzo', name:'Lorenzo'},
+  {id:'papai', name:'Papai'},
+  {id:'mamae', name:'Mamãe'}
 ];
 const CHARACTERS_BY_ID = Object.fromEntries(CHARACTERS.map(c => [c.id, c]));
 const CHAR_THUMBS = {};
