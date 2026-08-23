@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="img/icons/icon-180.png">
 <meta name="theme-color" content="#3D348B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --sky:#EAF4FB; --card:#FFFFFF; --coral:#FF8B67; --yellow:#FFD166;
@@ -35,7 +35,7 @@
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding:14px 2px; background:rgba(234,244,251,0.82); backdrop-filter:blur(6px);
   }
-  .brand{ display:flex; align-items:center; gap:8px; font-family:'Baloo 2', cursive; font-size:1.15rem; color:var(--plum); }
+  .brand{ display:flex; align-items:center; gap:8px; font-family:'Fredoka','Baloo 2', cursive; font-size:1.15rem; color:var(--plum); }
   .brand .logo{ font-size:1.5rem; }
   .settings-btn{
     width:42px; height:42px; border-radius:14px; background:var(--card); border:none; cursor:pointer;
@@ -46,9 +46,11 @@
   .settings-btn:active{ transform:scale(0.92) rotate(20deg); }
 
   header.top{ text-align:center; margin:4px 0 26px; }
-  header.top h1{ font-size:1.6rem; color:var(--plum); margin:6px 0 2px; }
+  header.top h1{ font-family:'Fredoka','Baloo 2',cursive; font-size:1.6rem; color:var(--plum); margin:6px 0 2px; }
   header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.95rem; }
   @media (min-width:700px){ header.top h1{ font-size:1.9rem; } header.top p{ font-size:1.05rem; } }
+
+  .section-title{ font-family:'Fredoka','Baloo 2', cursive; color:var(--plum); font-size:1.05rem; margin:2px 4px 12px; display:flex; align-items:center; gap:6px; }
 
   /* Mobile: 2 colunas · Tablet: 3-4 · Desktop: 5-6 */
   .grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; }
@@ -56,39 +58,55 @@
   @media (min-width:820px){ .grid{ grid-template-columns:repeat(4, 1fr); gap:18px; } }
   @media (min-width:1100px){ .grid{ grid-template-columns:repeat(5, 1fr); gap:20px; } }
   @media (min-width:1320px){ .grid{ grid-template-columns:repeat(6, 1fr); } }
-  .tile{
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-    background:var(--card); border-radius:24px; padding:24px 10px; text-decoration:none; color:var(--ink);
-    box-shadow:0 12px 26px rgba(61,52,139,0.10); transition:transform .15s ease;
-    -webkit-tap-highlight-color:transparent;
-  }
-  @media (min-width:820px){ .tile{ padding:30px 12px; border-radius:28px; } .tile .emoji{ font-size:3rem; } .tile .name{ font-size:1.05rem; } }
 
-  .section-title{ font-family:'Baloo 2', cursive; color:var(--plum); font-size:1.05rem; margin:2px 4px 12px; display:flex; align-items:center; gap:6px; }
-  .featured-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-bottom:30px; }
+  .featured-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-bottom:34px; }
   @media (min-width:560px){ .featured-grid{ grid-template-columns:repeat(4, 1fr); } }
   @media (min-width:1100px){ .featured-grid{ grid-template-columns:repeat(4, 1fr); gap:22px; } }
-  .tile.featured{
-    padding:30px 14px; border-radius:28px; position:relative; box-shadow:0 16px 34px rgba(61,52,139,0.16);
-    border:3px solid rgba(255,255,255,0.6);
+
+  /* ---------- TILE (poster-card estilo loja de jogos) ---------- */
+  .tile{
+    position:relative; display:flex; flex-direction:column; text-decoration:none; color:var(--ink);
+    background:var(--card); border-radius:22px; overflow:hidden;
+    box-shadow:0 12px 26px rgba(61,52,139,0.16);
+    transition:transform .15s ease, box-shadow .15s ease;
+    -webkit-tap-highlight-color:transparent;
   }
-  .tile.featured .emoji{ font-size:3.4rem; }
-  .tile.featured .name{ font-size:1.1rem; }
-  .tile.featured::before{
-    content:'⭐ Destaque'; position:absolute; top:10px; left:50%; transform:translateX(-50%);
-    background:var(--plum); color:white; font-family:'Baloo 2', cursive; font-size:0.62rem; font-weight:700;
-    padding:3px 10px; border-radius:999px; white-space:nowrap;
+  .tile:active{ transform:scale(0.96); box-shadow:0 6px 14px rgba(61,52,139,0.18); }
+
+  .tile-badge{
+    position:absolute; top:9px; left:50%; transform:translateX(-50%); z-index:6;
+    background:var(--plum); color:#fff; font-family:'Fredoka','Baloo 2',cursive; font-weight:600; font-size:0.6rem;
+    padding:3px 11px; border-radius:999px; white-space:nowrap; box-shadow:0 3px 8px rgba(0,0,0,0.22);
   }
-  @media (min-width:820px){ .tile.featured{ padding:36px 16px; } .tile.featured .emoji{ font-size:4rem; } .tile.featured .name{ font-size:1.25rem; } }
-  .tile:active{ transform:scale(0.96); }
-  .tile .emoji{ font-size:2.6rem; }
-  .tile .name{ font-family:'Baloo 2', cursive; font-size:0.98rem; color:var(--plum); text-align:center; }
-  .tile.c1{ background:#FFF1EA; } .tile.c2{ background:#EAF6FF; } .tile.c3{ background:#F1EBFB; }
-  .tile.c4{ background:#E3FBF3; } .tile.c5{ background:#FFF7DD; } .tile.c6{ background:#FFEAF0; }
-  .tile.c7{ background:#E8F5E2; } .tile.c8{ background:#F4E9FF; } .tile.c9{ background:#FFF0DE; }
-  .tile.c10{ background:#E7F0FF; }
-  .tile.c11{ background:#FDEFFF; } .tile.c12{ background:#EAFBEA; } .tile.c13{ background:#FFF4E5; }
-  .tile.c14{ background:#E9F0FF; } .tile.c15{ background:#FFF9E0; }
+
+  .tile-art{
+    position:relative; width:100%; aspect-ratio:1/1; overflow:hidden;
+    background:linear-gradient(150deg, var(--art1) 0%, var(--art2) 100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .tile-art::before{
+    content:''; position:absolute; inset:0; z-index:1;
+    background:radial-gradient(circle at 28% 18%, rgba(255,255,255,0.5) 0%, transparent 55%);
+  }
+  .tile-art::after{
+    content:''; position:absolute; inset:0; z-index:1;
+    background:linear-gradient(0deg, rgba(0,0,0,0.18) 0%, transparent 38%);
+  }
+  .tile-hero{ font-size:3rem; position:relative; z-index:2; filter:drop-shadow(0 6px 10px rgba(0,0,0,0.3)); }
+  .tile.featured .tile-hero{ font-size:3.6rem; }
+  .tile-deco{ position:absolute; z-index:1; font-size:1.05rem; opacity:0.55; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+  .tile-deco.d1{ top:9%; left:9%; }
+  .tile-deco.d2{ bottom:11%; right:10%; transform:rotate(-8deg); }
+
+  .tile-caption{ padding:9px 6px 11px; text-align:center; }
+  .tile-name{ font-family:'Fredoka','Baloo 2',cursive; font-weight:600; font-size:0.86rem; color:var(--plum); line-height:1.2; }
+  .tile.featured .tile-name{ font-size:0.98rem; }
+
+  @media (min-width:820px){
+    .tile-hero{ font-size:3.6rem; } .tile.featured .tile-hero{ font-size:4.2rem; }
+    .tile-name{ font-size:0.98rem; } .tile.featured .tile-name{ font-size:1.12rem; }
+    .tile-caption{ padding:12px 8px 14px; }
+  }
 </style>
 </head>
 <body>
@@ -104,66 +122,146 @@
 
   <div class="section-title">⭐ Destaques</div>
   <div class="featured-grid">
-    <a class="tile featured c5" href="index.html?tab=quebra">
-      <span class="emoji">🧩</span><span class="name">Quebra-cabeça</span>
+    <a class="tile featured" href="index.html?tab=quebra" style="--art1:#FFC98B; --art2:#FF7EA6;">
+      <span class="tile-badge">⭐ Destaque</span>
+      <div class="tile-art">
+        <span class="tile-deco d1">🖼️</span><span class="tile-deco d2">✨</span>
+        <span class="tile-hero">🧩</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Quebra-cabeça</span></div>
     </a>
-    <a class="tile featured c2" href="jogos/super-aventura.html">
-      <span class="emoji">🍄</span><span class="name">Super Aventura</span>
+    <a class="tile featured" href="jogos/super-aventura.html" style="--art1:#7FD4FF; --art2:#4CC38A;">
+      <span class="tile-badge">⭐ Destaque</span>
+      <div class="tile-art">
+        <span class="tile-deco d1">☁️</span><span class="tile-deco d2">⭐</span>
+        <span class="tile-hero">🍄</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Super Aventura</span></div>
     </a>
-    <a class="tile featured c5" href="jogos/aventura-turbo.html">
-      <span class="emoji">🐉</span><span class="name">Aventura Turbo</span>
+    <a class="tile featured" href="jogos/aventura-turbo.html" style="--art1:#FFB25E; --art2:#E8483A;">
+      <span class="tile-badge">⭐ Destaque</span>
+      <div class="tile-art">
+        <span class="tile-deco d1">🔥</span><span class="tile-deco d2">💨</span>
+        <span class="tile-hero">🐉</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Aventura Turbo</span></div>
     </a>
-    <a class="tile featured c4" href="jogos/bolinhas.html">
-      <span class="emoji">🧪</span><span class="name">Junte as Bolinhas</span>
+    <a class="tile featured" href="jogos/bolinhas.html" style="--art1:#A78BFA; --art2:#22D3A6;">
+      <span class="tile-badge">⭐ Destaque</span>
+      <div class="tile-art">
+        <span class="tile-deco d1">🔵</span><span class="tile-deco d2">🟣</span>
+        <span class="tile-hero">🧪</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Junte as Bolinhas</span></div>
     </a>
   </div>
 
   <div class="section-title">🎮 Todos os joguinhos</div>
   <div class="grid">
-    <a class="tile c6" href="jogos/memoria.html">
-      <span class="emoji">🧠</span><span class="name">Jogo da Memória</span>
+    <a class="tile" href="jogos/memoria.html" style="--art1:#FFD8A8; --art2:#FF7EA6;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🎴</span><span class="tile-deco d2">✨</span>
+        <span class="tile-hero">🧠</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Jogo da Memória</span></div>
     </a>
-    <a class="tile c7" href="jogos/sete-erros.html">
-      <span class="emoji">🔍</span><span class="name">7 Erros</span>
+    <a class="tile" href="jogos/sete-erros.html" style="--art1:#7FC8F8; --art2:#3D68C4;">
+      <div class="tile-art">
+        <span class="tile-deco d1">❓</span><span class="tile-deco d2">👀</span>
+        <span class="tile-hero">🔍</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">7 Erros</span></div>
     </a>
-    <a class="tile c8" href="jogos/cartas.html">
-      <span class="emoji">🃏</span><span class="name">Combine as Cartas</span>
+    <a class="tile" href="jogos/cartas.html" style="--art1:#FF9B8A; --art2:#FFD166;">
+      <div class="tile-art">
+        <span class="tile-deco d1">♠️</span><span class="tile-deco d2">♥️</span>
+        <span class="tile-hero">🃏</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Combine as Cartas</span></div>
     </a>
-    <a class="tile c9" href="jogos/cobrinha.html">
-      <span class="emoji">🐍</span><span class="name">Cobrinha</span>
+    <a class="tile" href="jogos/cobrinha.html" style="--art1:#9AE87A; --art2:#2E8B4C;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🍎</span><span class="tile-deco d2">🌿</span>
+        <span class="tile-hero">🐍</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Cobrinha</span></div>
     </a>
-    <a class="tile c10" href="jogos/corrida.html">
-      <span class="emoji">🏎️</span><span class="name">Corrida</span>
+    <a class="tile" href="jogos/corrida.html" style="--art1:#8890A8; --art2:#2C2A4A;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🏁</span><span class="tile-deco d2">💨</span>
+        <span class="tile-hero">🏎️</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Corrida</span></div>
     </a>
-    <a class="tile c11" href="jogos/velha.html">
-      <span class="emoji">⭕</span><span class="name">Jogo da Velha</span>
+    <a class="tile" href="jogos/velha.html" style="--art1:#8FB8FF; --art2:#9B7EF0;">
+      <div class="tile-art">
+        <span class="tile-deco d1">❌</span><span class="tile-deco d2">⭕</span>
+        <span class="tile-hero">⭕</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Jogo da Velha</span></div>
     </a>
-    <a class="tile c13" href="jogos/penaltis.html">
-      <span class="emoji">🥅</span><span class="name">Pênaltis</span>
+    <a class="tile" href="jogos/penaltis.html" style="--art1:#6FDB9E; --art2:#1F9E6E;">
+      <div class="tile-art">
+        <span class="tile-deco d1">⚽</span><span class="tile-deco d2">🏆</span>
+        <span class="tile-hero">🥅</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Pênaltis</span></div>
     </a>
-    <a class="tile c14" href="jogos/2048.html">
-      <span class="emoji">🔢</span><span class="name">2048</span>
+    <a class="tile" href="jogos/2048.html" style="--art1:#FFDD8F; --art2:#FF8B67;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🟧</span><span class="tile-deco d2">🟨</span>
+        <span class="tile-hero">🔢</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">2048</span></div>
     </a>
-    <a class="tile c15" href="jogos/pega-raio.html">
-      <span class="emoji">⚡</span><span class="name">Pega-Raio</span>
+    <a class="tile" href="jogos/pega-raio.html" style="--art1:#B79CED; --art2:#FFD166;">
+      <div class="tile-art">
+        <span class="tile-deco d1">💥</span><span class="tile-deco d2">✨</span>
+        <span class="tile-hero">⚡</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Pega-Raio</span></div>
     </a>
-    <a class="tile c11" href="jogos/vestir-jhulya.html">
-      <span class="emoji">👗</span><span class="name">Vestir a Jhulya</span>
+    <a class="tile" href="jogos/vestir-jhulya.html" style="--art1:#FFAAD4; --art2:#B57EDC;">
+      <div class="tile-art">
+        <span class="tile-deco d1">👠</span><span class="tile-deco d2">💄</span>
+        <span class="tile-hero">👗</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Vestir a Jhulya</span></div>
     </a>
-    <a class="tile c13" href="jogos/lorenzo-moedas.html">
-      <span class="emoji">💰</span><span class="name">Lorenzo Coleta Moedas</span>
+    <a class="tile" href="jogos/lorenzo-moedas.html" style="--art1:#FFE08F; --art2:#4C9BE8;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🪙</span><span class="tile-deco d2">⭐</span>
+        <span class="tile-hero">💰</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Lorenzo Coleta Moedas</span></div>
     </a>
-    <a class="tile c9" href="jogos/alimentar-perola.html">
-      <span class="emoji">🐟</span><span class="name">Alimente a Pérola</span>
+    <a class="tile" href="jogos/alimentar-perola.html" style="--art1:#6FC6EE; --art2:#06D6A0;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🫧</span><span class="tile-deco d2">🐠</span>
+        <span class="tile-hero">🐟</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Alimente a Pérola</span></div>
     </a>
-    <a class="tile c7" href="jogos/racha-cuca.html">
-      <span class="emoji">🧩</span><span class="name">Racha-Cuca</span>
+    <a class="tile" href="jogos/racha-cuca.html" style="--art1:#B39CF0; --art2:#6C63AC;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🔢</span><span class="tile-deco d2">🖼️</span>
+        <span class="tile-hero">🧩</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Racha-Cuca</span></div>
     </a>
-    <a class="tile c11" href="jogos/ilha-da-batalha.html">
-      <span class="emoji">🎯</span><span class="name">Ilha da Batalha</span>
+    <a class="tile" href="jogos/ilha-da-batalha.html" style="--art1:#9BDE7E; --art2:#4C9E2E;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🤖</span><span class="tile-deco d2">💥</span>
+        <span class="tile-hero">🎯</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Ilha da Batalha</span></div>
     </a>
-    <a class="tile c8" href="jogos/duelo-de-monstrinhos.html">
-      <span class="emoji">🎴</span><span class="name">DUELO DAS CARTAS</span>
+    <a class="tile" href="jogos/duelo-de-monstrinhos.html" style="--art1:#5B4FA8; --art2:#FFD166;">
+      <div class="tile-art">
+        <span class="tile-deco d1">🔥</span><span class="tile-deco d2">💧</span>
+        <span class="tile-hero">🎴</span>
+      </div>
+      <div class="tile-caption"><span class="tile-name">Duelo das Cartas</span></div>
     </a>
   </div>
 </div>
