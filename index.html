@@ -168,6 +168,10 @@
   }
   .play-btn:active{ transform:translateY(6px); box-shadow:0 2px 0 #C25A3C, 0 6px 14px rgba(31,22,74,0.25); }
   @keyframes playPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
+  .dev-credit{
+    margin:22px 0 0; font-family:'Quicksand', sans-serif; font-weight:700; font-size:0.72rem;
+    letter-spacing:0.5px; color:#FFFFFF; text-shadow:0 2px 6px rgba(31,22,74,0.35); opacity:0.85;
+  }
 
   /* PERFIL */
   .field-label{ display:block; font-family:'Baloo 2',cursive; color:var(--plum); font-size:0.82rem; margin:16px 0 2px; }
@@ -2917,6 +2921,7 @@ function renderOnboarding(){
       <h1 class="game-title">Joguinho<br>Papai</h1>
       <p class="game-tag">Um montão de joguinhos pra brincar! ✨</p>
       <button class="play-btn" id="startBtn">▶ Jogar</button>
+      <p class="dev-credit">Desenvolvido por JUNIN DUIN DEV</p>
     </div>
   `;
   const confirmStart = async ()=>{

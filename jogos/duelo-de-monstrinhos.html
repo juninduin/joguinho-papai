@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Duelo de Monstrinhos</title>
+<title>DUELO DAS CARTAS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -128,12 +128,15 @@
   .overlay .big-emoji{ font-size:2.2rem; margin-bottom:2px; }
   .overlay h2{ margin:2px 0; font-size:1.1rem; }
   .overlay p{ margin:0 0 10px; font-weight:600; font-size:0.85rem; max-width:320px; }
-  button.btn{
+  #pickOverlay{ pointer-events:none; }
+  .pick-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; pointer-events:auto; }
+  .btn{
     font-family:'Baloo 2', cursive; font-size:0.9rem; border:none; border-radius:14px; padding:11px 20px; cursor:pointer;
     box-shadow:0 6px 14px rgba(61,52,139,0.25); transition:transform .12s ease;
   }
-  button.btn:active{ transform:scale(0.96); }
+  .btn:active{ transform:scale(0.96); }
   .btn-primary{ background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%); color:white; }
+  .btn-secondary{ background:white; color:var(--plum); text-decoration:none; }
   .level-choices{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
   .level-choices button{ color:white; min-width:110px; }
   #btnEasy{ background:linear-gradient(180deg, #3AE0AE 0%, var(--mint) 100%); }
@@ -145,7 +148,7 @@
 <div class="app">
   <div class="topnav">
     <a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a>
-    <span class="mini-title">🎴 Duelo de Monstrinhos — 🤖 Computador</span>
+    <span class="mini-title">🎴 DUELO DAS CARTAS — 🤖 Computador</span>
   </div>
 
   <div class="hand-row" id="aiHand"></div>
@@ -180,7 +183,7 @@
 
   <div class="overlay show" id="setupOverlay">
     <div class="big-emoji">🎴</div>
-    <h2>Duelo de Monstrinhos</h2>
+    <h2>DUELO DAS CARTAS</h2>
     <p>Cada monstrinho tem um tipo, PS (vida) e ataques. Use o tipo certo pra causar dano extra! Escolha o nível:</p>
     <div class="level-choices">
       <button class="btn" id="btnEasy">⭐ Fácil</button>
@@ -193,13 +196,20 @@
     <div class="big-emoji">🔄</div>
     <h2>Seu monstrinho caiu!</h2>
     <p>Escolha o próximo pra entrar em campo (toque num monstrinho abaixo).</p>
+    <div class="pick-actions">
+      <button class="btn btn-primary" id="pickRestartBtn">Jogar novamente</button>
+      <a class="btn btn-secondary" href="../menu.html">Voltar ao menu</a>
+    </div>
   </div>
 
   <div class="overlay" id="msgOverlay">
     <div class="big-emoji" id="msgEmoji">😊</div>
     <h2 id="msgTitle"></h2>
     <p id="msgText"></p>
-    <button class="btn btn-primary" id="msgBtn"></button>
+    <div class="pick-actions">
+      <button class="btn btn-primary" id="msgBtn"></button>
+      <a class="btn btn-secondary" href="../menu.html">Voltar ao menu</a>
+    </div>
   </div>
 </div>
 
@@ -479,10 +489,10 @@ function endGame(winnerSide){
   running = false;
   if(winnerSide === 'player'){
     playVictory();
-    showMsg('🏆', 'Você venceu o duelo!', 'Todos os monstrinhos do computador foram derrotados!', 'Jogar de novo', backToSetup);
+    showMsg('🏆', 'Você venceu o duelo!', 'Todos os monstrinhos do computador foram derrotados!', 'Jogar novamente', () => startGame(difficulty));
   } else {
     playOver();
-    showMsg('😵', 'Você perdeu esse duelo...', 'Seus monstrinhos foram todos derrotados. Tente de novo!', 'Jogar de novo', backToSetup);
+    showMsg('😵', 'Você perdeu esse duelo...', 'Seus monstrinhos foram todos derrotados. Tente de novo!', 'Jogar novamente', () => startGame(difficulty));
   }
 }
 
@@ -495,6 +505,9 @@ function showMsg(emoji, title, text, btnLabel, onClick){
   document.getElementById('msgOverlay').classList.add('show');
 }
 function backToSetup(){
+  running = false;
+  pendingPlayerChoice = false;
+  document.getElementById('pickOverlay').classList.remove('show');
   document.getElementById('msgOverlay').classList.remove('show');
   document.getElementById('setupOverlay').classList.add('show');
 }
@@ -502,6 +515,7 @@ function backToSetup(){
 document.getElementById('btnEasy').onclick = () => startGame(1);
 document.getElementById('btnMed').onclick = () => startGame(2);
 document.getElementById('btnHard').onclick = () => startGame(3);
+document.getElementById('pickRestartBtn').onclick = () => startGame(difficulty);
 </script>
 </body>
 </html>
