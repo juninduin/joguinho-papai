@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Menu</title>
+<title>Joguinho Papai</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="img/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="img/icons/icon-512.png">
+<link rel="apple-touch-icon" href="img/icons/icon-180.png">
+<meta name="theme-color" content="#3D348B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -20,15 +25,29 @@
       var(--sky);
     font-family:'Quicksand', sans-serif; color:var(--ink);
     display:flex; flex-direction:column; align-items:center;
-    padding:26px 14px 50px;
+    padding:0 14px 50px;
   }
   h1,h2,.display{ font-family:'Baloo 2', cursive; }
-  .app{ width:100%; max-width:620px; }
-  header.top{ text-align:center; margin-bottom:22px; }
-  header.top h1{ font-size:1.8rem; color:var(--plum); margin:8px 0 2px; }
+  .app{ width:100%; max-width:680px; }
+
+  .topbar{
+    position:sticky; top:0; z-index:5; width:100%; max-width:680px; margin:0 auto;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 2px; background:rgba(234,244,251,0.82); backdrop-filter:blur(6px);
+  }
+  .brand{ display:flex; align-items:center; gap:8px; font-family:'Baloo 2', cursive; font-size:1.15rem; color:var(--plum); }
+  .brand .logo{ font-size:1.5rem; }
+  .settings-btn{
+    width:42px; height:42px; border-radius:14px; background:var(--card); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:1.25rem; color:var(--plum-soft);
+    box-shadow:0 6px 16px rgba(61,52,139,0.14); transition:transform .15s ease;
+    -webkit-tap-highlight-color:transparent; text-decoration:none;
+  }
+  .settings-btn:active{ transform:scale(0.92) rotate(20deg); }
+
+  header.top{ text-align:center; margin:4px 0 22px; }
+  header.top h1{ font-size:1.6rem; color:var(--plum); margin:6px 0 2px; }
   header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.95rem; }
-  .section-label{ font-family:'Baloo 2', cursive; color:var(--plum-soft); font-size:0.95rem; margin:22px 4px 10px; }
-  .section-label:first-of-type{ margin-top:0; }
   .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (min-width:520px){ .grid{ grid-template-columns:1fr 1fr 1fr; } }
   .tile{
@@ -50,12 +69,15 @@
 </head>
 <body>
 <div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="logo">🎮</span> Meus Jogos</div>
+    <a class="settings-btn" href="index.html?tab=perfil" aria-label="Configurações">⚙️</a>
+  </div>
   <header class="top">
-    <h1>🎮 Menu</h1>
-    <p>Escolha o que você quer fazer!</p>
+    <h1>Oi! O que vamos fazer hoje?</h1>
+    <p>Escolha um joguinho pra começar</p>
   </header>
 
-  <div class="section-label">🎮 Joguinhos</div>
   <div class="grid">
     <a class="tile c5" href="index.html?tab=quebra">
       <span class="emoji">🧩</span><span class="name">Quebra-cabeça</span>
@@ -111,18 +133,14 @@
     <a class="tile c11" href="jogos/ilha-da-batalha.html">
       <span class="emoji">🎯</span><span class="name">Ilha da Batalha</span>
     </a>
-  </div>
-
-  <div class="section-label">🧸 Minhas coisas</div>
-  <div class="grid">
+    <a class="tile c8" href="jogos/duelo-de-monstrinhos.html">
+      <span class="emoji">🎴</span><span class="name">Duelo de Monstrinhos</span>
+    </a>
     <a class="tile c1" href="index.html?tab=rotina">
       <span class="emoji">🏠</span><span class="name">Rotina</span>
     </a>
-    <a class="tile c2" href="index.html?tab=emocao">
+    <a class="tile c4" href="index.html?tab=emocao">
       <span class="emoji">🙂</span><span class="name">Diário de Emoções</span>
-    </a>
-    <a class="tile c4" href="index.html?tab=perfil">
-      <span class="emoji">⚙️</span><span class="name">Configurações</span>
     </a>
   </div>
 </div>

@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diário do Dia a Dia</title>
+<title>Joguinho Papai</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="img/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="img/icons/icon-512.png">
+<link rel="apple-touch-icon" href="img/icons/icon-180.png">
+<meta name="theme-color" content="#3D348B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -121,24 +126,47 @@
   }
   input[type=text]:focus, input[type=number]:focus, textarea:focus{ outline:2px solid var(--coral); border-color:transparent; }
 
-  /* CAPA (primeiro acesso) — fundo ilustrado, uma imagem por tamanho de tela */
+  /* CAPA (primeiro acesso) — tela de titulo estilo jogo */
   body.cover-mode{
-    align-items:center;
-    background-image:url('img/tela-mobile.png');
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
+    align-items:center; justify-content:center; padding:24px 16px; overflow:hidden; position:relative;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5) 0%, transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(255,209,102,0.35) 0%, transparent 45%),
+      radial-gradient(circle at 20% 85%, rgba(6,214,160,0.3) 0%, transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(255,139,103,0.3) 0%, transparent 45%),
+      linear-gradient(160deg, #5B7FE0 0%, #7BC8F0 55%, #9FE6C8 100%);
   }
-  @media (min-width:700px){
-    body.cover-mode{ background-image:url('img/tela-tablet.png'); }
+  body.cover-mode .app{ z-index:3; }
+  .title-shape{
+    position:absolute; border-radius:50%; pointer-events:none; z-index:1;
+    background:rgba(255,255,255,0.5); animation:floatShape 6s ease-in-out infinite;
   }
-  @media (min-width:1100px){
-    body.cover-mode{ background-image:url('img/tela-desketop.png'); }
+  @keyframes floatShape{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-16px); } }
+  .title-screen{ text-align:center; position:relative; z-index:2; }
+  .title-logo{
+    font-size:3.2rem; margin-bottom:4px; display:inline-block;
+    animation:logoBounce 2.2s ease-in-out infinite;
+    filter:drop-shadow(0 8px 10px rgba(31,22,74,0.25));
   }
-  .cover-card{ box-shadow:0 20px 44px rgba(31,22,74,0.28); text-align:center; }
-  .cover-card .field-label{ text-align:center; font-size:1.35rem; color:var(--plum); margin-bottom:8px; }
-  .cover-card input[type=text]{ font-size:1.1rem; padding:14px 16px; }
-  .cover-card input[type=text]{ text-align:center; }
+  @keyframes logoBounce{ 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-10px) rotate(3deg); } }
+  .game-title{
+    font-family:'Baloo 2', cursive; font-weight:800; font-size:2.6rem; line-height:1.05; margin:0;
+    color:#FFFFFF; -webkit-text-stroke:3px var(--plum); text-shadow:0 6px 0 var(--plum), 0 14px 22px rgba(31,22,74,0.35);
+    letter-spacing:0.5px;
+  }
+  .game-tag{
+    margin:10px 0 26px; font-family:'Baloo 2', cursive; font-weight:700; font-size:1rem;
+    color:#FFFFFF; text-shadow:0 3px 8px rgba(31,22,74,0.3);
+  }
+  .play-btn{
+    font-family:'Baloo 2', cursive; font-weight:800; font-size:1.35rem; color:white; border:none;
+    background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%);
+    padding:16px 46px; border-radius:999px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    box-shadow:0 8px 0 #C25A3C, 0 16px 26px rgba(31,22,74,0.3); transition:transform .12s ease, box-shadow .12s ease;
+    animation:playPulse 1.6s ease-in-out infinite;
+  }
+  .play-btn:active{ transform:translateY(6px); box-shadow:0 2px 0 #C25A3C, 0 6px 14px rgba(31,22,74,0.25); }
+  @keyframes playPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
 
   /* PERFIL */
   .field-label{ display:block; font-family:'Baloo 2',cursive; color:var(--plum); font-size:0.82rem; margin:16px 0 2px; }
@@ -2868,37 +2896,47 @@ function updateGreeting(){
 function renderOnboarding(){
   document.getElementById('pageHeader').style.display = 'none';
   document.body.classList.add('cover-mode');
+  const shapes = [
+    {top:'8%', left:'10%', size:60, delay:'0s'}, {top:'18%', left:'80%', size:38, delay:'1.2s'},
+    {top:'72%', left:'14%', size:46, delay:'.6s'}, {top:'80%', left:'82%', size:56, delay:'1.8s'},
+    {top:'42%', left:'4%', size:26, delay:'.3s'}, {top:'50%', left:'92%', size:30, delay:'1s'}
+  ];
+  document.querySelectorAll('.title-shape').forEach(el => el.remove());
+  shapes.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'title-shape';
+    el.style.cssText = `top:${s.top}; left:${s.left}; width:${s.size}px; height:${s.size}px; animation-delay:${s.delay};`;
+    document.body.appendChild(el);
+  });
   const cardArea = document.getElementById('cardArea');
-  cardArea.classList.add('cover-card');
+  cardArea.classList.remove('cover-card', 'card');
   cardArea.innerHTML = `
-    <label class="field-label">Qual é o seu nome? 😊</label>
-    <input type="text" id="nameInput" placeholder="Digite seu nome aqui" maxlength="30">
-    <div class="nav">
-      <button class="btn btn-primary" id="startBtn" style="width:100%">Começar a jogar 🚀</button>
+    <div class="title-screen">
+      <span class="title-logo">🎮</span>
+      <h1 class="game-title">Joguinho<br>Papai</h1>
+      <p class="game-tag">Um montão de joguinhos pra brincar! ✨</p>
+      <button class="play-btn" id="startBtn">▶ Jogar</button>
     </div>
   `;
-  const input = document.getElementById('nameInput');
-  input.focus();
-  const confirmName = async ()=>{
-    const val = input.value.trim();
-    if(!val) return;
-    profileName = val;
-    await store.set('perfil:nome', val);
-    cloudSyncProfile();
+  const confirmStart = async ()=>{
+    if(!profileName){
+      profileName = 'Jogador';
+      await store.set('perfil:nome', profileName);
+      cloudSyncProfile();
+    }
     playStartSound();
+    document.querySelectorAll('.title-shape').forEach(el => el.remove());
     if(!requestedTabParam){
       window.location.replace('menu.html');
       return;
     }
-    cardArea.classList.remove('cover-card');
+    cardArea.classList.add('card');
     document.body.classList.remove('cover-mode');
     updateGreeting();
     document.getElementById('pageHeader').style.display = 'block';
     setTab(requestedTab);
   };
-  document.getElementById('startBtn').onclick = confirmName;
-  input.onkeydown = (e)=>{ if(e.key==='Enter') confirmName(); };
-  parseEmoji();
+  document.getElementById('startBtn').onclick = confirmStart;
 }
 
 document.getElementById('editNameBtn').onclick = ()=> setTab('perfil');

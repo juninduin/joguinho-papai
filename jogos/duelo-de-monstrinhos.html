@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Duelo de Monstrinhos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#EAF4FB; --card:#FFFFFF; --coral:#FF8B67; --yellow:#FFD166;
+    --mint:#06D6A0; --plum:#3D348B; --plum-soft:#6C63AC; --ink:#2C2A4A;
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; min-height:100vh; min-height:100svh;
+    background:
+      radial-gradient(circle at 12% 15%, #DCEEFB 0%, transparent 40%),
+      radial-gradient(circle at 88% 80%, #FDE9DC 0%, transparent 45%),
+      var(--sky);
+    font-family:'Quicksand', sans-serif; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    padding:10px 12px 20px;
+  }
+  h1,h2,.display{ font-family:'Baloo 2', cursive; }
+  .app{ width:100%; max-width:460px; display:flex; flex-direction:column; min-height:0; position:relative; }
+  .topnav{ display:flex; align-items:center; margin-bottom:6px; flex:0 0 auto; }
+  .backbtn{ width:36px; height:36px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); }
+  header.top{ text-align:center; margin-bottom:6px; flex:0 0 auto; }
+  header.top h1{ font-size:1.2rem; color:var(--plum); margin:0 0 2px; }
+  header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.8rem; }
+
+  .board{ position:relative; flex:1 1 auto; display:flex; flex-direction:column; gap:10px; }
+
+  .side{ display:flex; flex-direction:column; gap:6px; }
+  .side-label{ font-family:'Baloo 2', cursive; font-size:0.72rem; color:var(--plum-soft); text-align:center; }
+
+  .card{
+    background:white; border-radius:16px; padding:10px 12px; box-shadow:0 8px 20px rgba(61,52,139,0.14);
+    position:relative; overflow:hidden; border:3px solid transparent;
+  }
+  .card-head{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .card-name{ font-family:'Baloo 2', cursive; font-size:0.95rem; }
+  .card-hp{ font-family:'Baloo 2', cursive; font-size:0.85rem; }
+  .hpbar-wrap{ height:10px; border-radius:6px; background:#EEE; overflow:hidden; margin:5px 0 8px; }
+  .hpbar-fill{ height:100%; transition:width .3s ease; }
+  .card-body{ display:flex; align-items:center; gap:10px; }
+  .card-portrait{
+    width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:2rem; flex:0 0 auto; box-shadow:inset 0 -4px 0 rgba(0,0,0,0.12);
+  }
+  .card-meta{ font-size:0.72rem; font-weight:700; color:var(--plum-soft); }
+  .weak-tag{ display:inline-block; margin-top:2px; }
+
+  .attacks{ display:flex; gap:8px; margin-top:8px; }
+  button.atk-btn{
+    flex:1; font-family:'Baloo 2', cursive; font-size:0.78rem; border:none; border-radius:12px; padding:9px 6px;
+    cursor:pointer; color:white; box-shadow:0 4px 0 rgba(0,0,0,0.18); transition:transform .1s ease, box-shadow .1s ease;
+  }
+  button.atk-btn:active{ transform:translateY(3px); box-shadow:none; }
+  button.atk-btn:disabled{ opacity:0.45; cursor:default; }
+  button.atk-btn .dmg{ display:block; font-size:0.68rem; opacity:0.9; }
+
+  .hand-strip{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+  .mini-card{
+    width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; position:relative; cursor:pointer; border:3px solid transparent; -webkit-tap-highlight-color:transparent;
+    box-shadow:0 3px 8px rgba(61,52,139,0.15); transition:transform .1s ease;
+  }
+  .mini-card:active{ transform:scale(0.92); }
+  .mini-card.ko{ opacity:0.3; filter:grayscale(1); cursor:default; }
+  .mini-card.active{ border-color:var(--yellow); }
+  .mini-card.pickable{ animation:pulseCard 1s ease-in-out infinite; }
+  @keyframes pulseCard{ 0%,100%{ box-shadow:0 3px 8px rgba(61,52,139,0.15);} 50%{ box-shadow:0 0 0 5px rgba(255,209,102,0.6);} }
+
+  .battle-log{
+    text-align:center; font-weight:700; font-size:0.8rem; color:var(--plum); min-height:20px;
+    background:white; border-radius:12px; padding:6px 10px; box-shadow:0 4px 10px rgba(61,52,139,0.1);
+  }
+
+  .dmg-pop{
+    position:absolute; top:6px; right:8px; font-family:'Baloo 2', cursive; font-weight:800; font-size:1rem;
+    color:#FF6B6B; text-shadow:0 2px 4px rgba(0,0,0,0.15); pointer-events:none; animation:dmgFloat .8s ease-out forwards;
+  }
+  .dmg-pop.bonus{ color:#E0A800; }
+  @keyframes dmgFloat{
+    0%{ transform:translateY(0) scale(0.7); opacity:0; }
+    30%{ transform:translateY(-6px) scale(1.2); opacity:1; }
+    100%{ transform:translateY(-26px) scale(1); opacity:0; }
+  }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(61,52,139,0.62); display:none; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; color:white; padding:16px; z-index:20;
+  }
+  .overlay.show{ display:flex; }
+  .overlay .big-emoji{ font-size:2.2rem; margin-bottom:2px; }
+  .overlay h2{ margin:2px 0; font-size:1.1rem; }
+  .overlay p{ margin:0 0 10px; font-weight:600; font-size:0.85rem; max-width:320px; }
+  button.btn{
+    font-family:'Baloo 2', cursive; font-size:0.9rem; border:none; border-radius:14px; padding:11px 20px; cursor:pointer;
+    box-shadow:0 6px 14px rgba(61,52,139,0.25); transition:transform .12s ease;
+  }
+  button.btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%); color:white; }
+  .level-choices{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+  .level-choices button{ color:white; min-width:110px; }
+  #btnEasy{ background:linear-gradient(180deg, #3AE0AE 0%, var(--mint) 100%); }
+  #btnMed{ background:linear-gradient(180deg, #FFDD8F 0%, var(--yellow) 100%); color:var(--ink); }
+  #btnHard{ background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topnav"><a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a></div>
+  <header class="top">
+    <h1>🎴 Duelo de Monstrinhos</h1>
+    <p>Ataque, use a fraqueza do tipo, e vença o computador!</p>
+  </header>
+
+  <div class="board">
+    <div class="side" id="aiSide">
+      <div class="side-label">🤖 Computador</div>
+      <div class="card" id="aiCard">
+        <div class="card-head"><span class="card-name" id="aiName">-</span><span class="card-hp"><span id="aiHpNum">0</span> PS</span></div>
+        <div class="hpbar-wrap"><div class="hpbar-fill" id="aiHpFill"></div></div>
+        <div class="card-body">
+          <div class="card-portrait" id="aiPortrait">🐣</div>
+          <div class="card-meta" id="aiMeta"></div>
+        </div>
+      </div>
+      <div class="hand-strip" id="aiHand"></div>
+    </div>
+
+    <div class="battle-log" id="battleLog">Escolha o nível pra começar!</div>
+
+    <div class="side" id="playerSide">
+      <div class="card" id="playerCard">
+        <div class="card-head"><span class="card-name" id="playerName">-</span><span class="card-hp"><span id="playerHpNum">0</span> PS</span></div>
+        <div class="hpbar-wrap"><div class="hpbar-fill" id="playerHpFill"></div></div>
+        <div class="card-body">
+          <div class="card-portrait" id="playerPortrait">🐣</div>
+          <div class="card-meta" id="playerMeta"></div>
+        </div>
+        <div class="attacks" id="playerAttacks"></div>
+      </div>
+      <div class="hand-strip" id="playerHand"></div>
+      <div class="side-label">🧒 Você</div>
+    </div>
+  </div>
+
+  <div class="overlay show" id="setupOverlay">
+    <div class="big-emoji">🎴</div>
+    <h2>Duelo de Monstrinhos</h2>
+    <p>Cada monstrinho tem um tipo, PS (vida) e ataques. Use o tipo certo pra causar dano extra! Escolha o nível:</p>
+    <div class="level-choices">
+      <button class="btn" id="btnEasy">⭐ Fácil</button>
+      <button class="btn" id="btnMed">⭐⭐ Médio</button>
+      <button class="btn" id="btnHard">⭐⭐⭐ Difícil</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="pickOverlay">
+    <div class="big-emoji">🔄</div>
+    <h2>Seu monstrinho caiu!</h2>
+    <p>Escolha o próximo pra entrar em campo (toque num monstrinho abaixo).</p>
+  </div>
+
+  <div class="overlay" id="msgOverlay">
+    <div class="big-emoji" id="msgEmoji">😊</div>
+    <h2 id="msgTitle"></h2>
+    <p id="msgText"></p>
+    <button class="btn btn-primary" id="msgBtn"></button>
+  </div>
+</div>
+
+<script>
+let audioCtx = null;
+function getAudioCtx(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; } } if(audioCtx.state==='suspended'){ audioCtx.resume(); } return audioCtx; }
+function playTone(freq, startTime, duration, type, peakGain){
+  const ctx = getAudioCtx(); if(!ctx) return;
+  const osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = type || 'triangle'; osc.frequency.value = freq;
+  const t0 = ctx.currentTime + startTime;
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(peakGain || 0.14, t0 + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + duration + 0.02);
+}
+function playAttack(){ playTone(500, 0, 0.08, 'sawtooth', 0.09); playTone(300, 0.05, 0.08, 'sawtooth', 0.07); }
+function playBonus(){ playTone(900, 0, 0.1, 'triangle', 0.1); }
+function playFaint(){ [400,300,200].forEach((f,i)=> playTone(f, i*0.08, 0.16, 'sawtooth', 0.1)); }
+function playSwitch(){ [600,800].forEach((f,i)=> playTone(f, i*0.06, 0.08, 'square', 0.07)); }
+function playVictory(){ [523,659,784,1047,1319].forEach((f,i)=> playTone(f, i*0.11, 0.26, 'triangle', 0.13)); }
+function playOver(){ [392,330,262,220].forEach((f,i)=> playTone(f, i*0.12, 0.22, 'sine', 0.11)); }
+
+const TYPE_COLORS = {
+  fogo:{bg:'#FF8B67', dark:'#E8483A'}, agua:{bg:'#4EA8DE', dark:'#2C6FC2'},
+  planta:{bg:'#7ED957', dark:'#4C9E2E'}, eletrico:{bg:'#FFD166', dark:'#E0A800'},
+  sombra:{bg:'#9B6FDE', dark:'#6B4FA0'}
+};
+const TYPE_EMOJI = { fogo:'🔥', agua:'💧', planta:'🌿', eletrico:'⚡', sombra:'🌙' };
+const TYPE_NAME = { fogo:'Fogo', agua:'Água', planta:'Planta', eletrico:'Elétrico', sombra:'Sombra' };
+
+const CARD_POOL = [
+  {id:'flamitos', name:'Flamitos', type:'fogo', emoji:'🦎', hp:90, weakTo:'agua', attacks:[{name:'Chamas',dmg:20},{name:'Bola de Fogo',dmg:45}]},
+  {id:'vulcanho', name:'Vulcanho', type:'fogo', emoji:'🐉', hp:110, weakTo:'agua', attacks:[{name:'Lava',dmg:25},{name:'Erupção',dmg:55}]},
+  {id:'aquari', name:'Aquari', type:'agua', emoji:'🐢', hp:95, weakTo:'eletrico', attacks:[{name:'Jato d’Água',dmg:20},{name:'Onda Gigante',dmg:45}]},
+  {id:'marejo', name:'Marejo', type:'agua', emoji:'🐙', hp:105, weakTo:'eletrico', attacks:[{name:'Borrifada',dmg:25},{name:'Maremoto',dmg:50}]},
+  {id:'folharina', name:'Folharina', type:'planta', emoji:'🐌', hp:90, weakTo:'fogo', attacks:[{name:'Chicote',dmg:20},{name:'Fúria Verde',dmg:45}]},
+  {id:'raizudo', name:'Raizudo', type:'planta', emoji:'🦔', hp:115, weakTo:'fogo', attacks:[{name:'Investida',dmg:25},{name:'Esporos',dmg:40}]},
+  {id:'voltz', name:'Voltz', type:'eletrico', emoji:'🐿️', hp:80, weakTo:'planta', attacks:[{name:'Choque',dmg:25},{name:'Trovão',dmg:55}]},
+  {id:'faiscoso', name:'Faiscoso', type:'eletrico', emoji:'🦋', hp:85, weakTo:'planta', attacks:[{name:'Faísca',dmg:30},{name:'Raio Total',dmg:50}]},
+  {id:'sombrix', name:'Sombrix', type:'sombra', emoji:'🦇', hp:85, weakTo:'eletrico', attacks:[{name:'Garra Sombria',dmg:25},{name:'Pesadelo',dmg:50}]},
+  {id:'fantasminho', name:'Fantasminho', type:'sombra', emoji:'👻', hp:90, weakTo:'fogo', attacks:[{name:'Sussurro',dmg:20},{name:'Grito Fantasma',dmg:45}]}
+];
+const WEAKNESS_BONUS = 20;
+const DIFF_LABEL = {1:'Fácil', 2:'Médio', 3:'Difícil'};
+
+let difficulty = 2;
+let playerHand = [], aiHand = [];
+let playerActiveIdx = 0, aiActiveIdx = 0;
+let turn = 'player';
+let running = false;
+let pendingPlayerChoice = false;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function cloneCard(def){ return {...def, currentHp: def.hp}; }
+
+function startGame(level){
+  difficulty = level;
+  const shuffled = shuffle(CARD_POOL);
+  playerHand = shuffled.slice(0,5).map(cloneCard);
+  aiHand = shuffled.slice(5,10).map(cloneCard);
+  playerActiveIdx = 0; aiActiveIdx = 0;
+  turn = 'player'; running = true; pendingPlayerChoice = false;
+  document.getElementById('setupOverlay').classList.remove('show');
+  document.getElementById('msgOverlay').classList.remove('show');
+  document.getElementById('pickOverlay').classList.remove('show');
+  setLog(`Nível ${DIFF_LABEL[level]}! Sua vez — ataque!`);
+  renderAll();
+}
+
+function setLog(text){ document.getElementById('battleLog').textContent = text; }
+
+function renderCardEl(prefix, card, isActive){
+  const t = TYPE_COLORS[card.type];
+  document.getElementById(prefix+'Name').textContent = card.name;
+  document.getElementById(prefix+'HpNum').textContent = Math.max(0, card.currentHp);
+  const pct = Math.max(0, card.currentHp/card.hp*100);
+  const fill = document.getElementById(prefix+'HpFill');
+  fill.style.width = pct+'%';
+  fill.style.background = pct>50 ? 'linear-gradient(90deg,#3AE0AE,#06D6A0)' : (pct>20 ? 'linear-gradient(90deg,#FFDD8F,#FFD166)' : 'linear-gradient(90deg,#FF9B8F,#FF6B6B)');
+  const portrait = document.getElementById(prefix+'Portrait');
+  portrait.textContent = card.emoji;
+  portrait.style.background = t.bg;
+  document.getElementById(prefix+'Meta').innerHTML =
+    `${TYPE_EMOJI[card.type]} ${TYPE_NAME[card.type]}<br><span class="weak-tag">Fraco contra ${TYPE_EMOJI[card.weakTo]} ${TYPE_NAME[card.weakTo]}</span>`;
+  document.getElementById(prefix+'Card').style.borderColor = card.currentHp<=0 ? '#ccc' : t.bg;
+}
+
+function renderHandStrip(elId, hand, activeIdx, clickable){
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  hand.forEach((card, i) => {
+    const div = document.createElement('div');
+    const t = TYPE_COLORS[card.type];
+    div.className = 'mini-card' + (card.currentHp<=0 ? ' ko' : '') + (i===activeIdx ? ' active' : '');
+    if(clickable && card.currentHp>0 && i!==activeIdx) div.classList.add('pickable');
+    div.style.background = t.bg;
+    div.textContent = card.emoji;
+    if(clickable && card.currentHp>0 && i!==activeIdx){
+      div.addEventListener('click', () => onHandCardClick(i));
+    }
+    el.appendChild(div);
+  });
+}
+
+function renderPlayerAttacks(){
+  const el = document.getElementById('playerAttacks');
+  el.innerHTML = '';
+  const card = playerHand[playerActiveIdx];
+  if(!card) return;
+  card.attacks.forEach((atk, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'atk-btn';
+    const t = TYPE_COLORS[card.type];
+    btn.style.background = `linear-gradient(180deg, ${t.bg} 0%, ${t.dark} 100%)`;
+    btn.innerHTML = `${atk.name}<span class="dmg">💥 ${atk.dmg}</span>`;
+    const enabled = running && turn==='player' && !pendingPlayerChoice && card.currentHp>0;
+    btn.disabled = !enabled;
+    btn.addEventListener('click', () => resolveAttack('player', idx));
+    el.appendChild(btn);
+  });
+}
+
+function renderAll(){
+  renderCardEl('ai', aiHand[aiActiveIdx], true);
+  renderCardEl('player', playerHand[playerActiveIdx], true);
+  renderHandStrip('aiHand', aiHand, aiActiveIdx, false);
+  renderHandStrip('playerHand', playerHand, playerActiveIdx, running && (pendingPlayerChoice || turn==='player'));
+  renderPlayerAttacks();
+}
+
+function popDamage(prefix, text, bonus){
+  const cardEl = document.getElementById(prefix+'Card');
+  const pop = document.createElement('div');
+  pop.className = 'dmg-pop' + (bonus ? ' bonus' : '');
+  pop.textContent = text;
+  cardEl.appendChild(pop);
+  setTimeout(()=> pop.remove(), 800);
+}
+
+function resolveAttack(side, atkIdx){
+  if(!running) return;
+  if(side==='player' && (turn!=='player' || pendingPlayerChoice)) return;
+  const attackerHand = side==='player' ? playerHand : aiHand;
+  const attackerIdx = side==='player' ? playerActiveIdx : aiActiveIdx;
+  const defenderHand = side==='player' ? aiHand : playerHand;
+  const defenderIdx = side==='player' ? aiActiveIdx : playerActiveIdx;
+  const attacker = attackerHand[attackerIdx];
+  const defender = defenderHand[defenderIdx];
+  const atk = attacker.attacks[atkIdx];
+  let dmg = atk.dmg;
+  const bonus = attacker.type === defender.weakTo;
+  if(bonus) dmg += WEAKNESS_BONUS;
+  defender.currentHp = Math.max(0, defender.currentHp - dmg);
+
+  playAttack();
+  if(bonus) setTimeout(playBonus, 90);
+  const who = side==='player' ? 'Seu' : 'O';
+  const target = side==='player' ? 'ai' : 'player';
+  setLog(`${who} ${attacker.name} usou ${atk.name}! -${dmg} PS${bonus ? ' (fraqueza! +20)' : ''}`);
+  popDamage(target, '-'+dmg, bonus);
+  renderAll();
+
+  setTimeout(() => afterAttack(side), 350);
+}
+
+function afterAttack(attackerSide){
+  const defenderSide = attackerSide==='player' ? 'ai' : 'player';
+  const defenderHand = defenderSide==='player' ? playerHand : aiHand;
+  const defenderIdx = defenderSide==='player' ? playerActiveIdx : aiActiveIdx;
+  const defender = defenderHand[defenderIdx];
+
+  if(defender.currentHp <= 0){
+    playFaint();
+    setLog(`${defender.name} foi derrotado!`);
+    const alive = defenderHand.map((c,i)=>({c,i})).filter(o => o.c.currentHp>0);
+    if(alive.length === 0){
+      endGame(attackerSide);
+      return;
+    }
+    if(defenderSide === 'ai'){
+      aiActiveIdx = pickBestAiCard(alive);
+      turn = 'ai';
+      setTimeout(() => { setLog(`${aiHand[aiActiveIdx].name} do computador entrou em campo!`); renderAll(); setTimeout(aiTakeTurn, 900); }, 400);
+    } else {
+      pendingPlayerChoice = true;
+      document.getElementById('pickOverlay').classList.add('show');
+      renderAll();
+    }
+  } else {
+    turn = defenderSide;
+    renderAll();
+    if(defenderSide === 'ai'){
+      setTimeout(aiTakeTurn, 900);
+    } else {
+      setLog('Sua vez!');
+    }
+  }
+}
+
+function pickBestAiCard(aliveOptions){
+  if(difficulty < 3) return aliveOptions[0].i;
+  const player = playerHand[playerActiveIdx];
+  let best = aliveOptions[0];
+  aliveOptions.forEach(o => {
+    if(o.c.type === player.weakTo && best.c.type !== player.weakTo) best = o;
+  });
+  return best.i;
+}
+
+function onHandCardClick(idx){
+  if(!running) return;
+  if(pendingPlayerChoice){
+    playerActiveIdx = idx;
+    pendingPlayerChoice = false;
+    document.getElementById('pickOverlay').classList.remove('show');
+    playSwitch();
+    turn = 'player';
+    setLog(`${playerHand[idx].name} entrou em campo! Sua vez.`);
+    renderAll();
+    return;
+  }
+  if(turn === 'player' && playerHand[idx].currentHp > 0 && idx !== playerActiveIdx){
+    playerActiveIdx = idx;
+    playSwitch();
+    setLog(`Você trocou para ${playerHand[idx].name}.`);
+    turn = 'ai';
+    renderAll();
+    setTimeout(aiTakeTurn, 900);
+  }
+}
+
+function aiTakeTurn(){
+  if(!running || turn !== 'ai') return;
+  const ai = aiHand[aiActiveIdx];
+  const player = playerHand[playerActiveIdx];
+  let atkIdx;
+  if(difficulty === 1){
+    atkIdx = Math.random() < 0.5 ? 0 : 1;
+  } else {
+    const d0 = ai.attacks[0].dmg + (ai.type===player.weakTo ? WEAKNESS_BONUS : 0);
+    const d1 = ai.attacks[1].dmg + (ai.type===player.weakTo ? WEAKNESS_BONUS : 0);
+    atkIdx = d1 > d0 ? 1 : 0;
+  }
+  resolveAttack('ai', atkIdx);
+}
+
+function endGame(winnerSide){
+  running = false;
+  if(winnerSide === 'player'){
+    playVictory();
+    showMsg('🏆', 'Você venceu o duelo!', 'Todos os monstrinhos do computador foram derrotados!', 'Jogar de novo', backToSetup);
+  } else {
+    playOver();
+    showMsg('😵', 'Você perdeu esse duelo...', 'Seus monstrinhos foram todos derrotados. Tente de novo!', 'Jogar de novo', backToSetup);
+  }
+}
+
+function showMsg(emoji, title, text, btnLabel, onClick){
+  document.getElementById('msgEmoji').textContent = emoji;
+  document.getElementById('msgTitle').textContent = title;
+  document.getElementById('msgText').textContent = text;
+  const btn = document.getElementById('msgBtn');
+  btn.textContent = btnLabel; btn.onclick = onClick;
+  document.getElementById('msgOverlay').classList.add('show');
+}
+function backToSetup(){
+  document.getElementById('msgOverlay').classList.remove('show');
+  document.getElementById('setupOverlay').classList.add('show');
+}
+
+document.getElementById('btnEasy').onclick = () => startGame(1);
+document.getElementById('btnMed').onclick = () => startGame(2);
+document.getElementById('btnHard').onclick = () => startGame(3);
+</script>
+</body>
+</html>
