@@ -66,11 +66,11 @@
     box-shadow:0 4px 0 #16214a, 0 6px 12px rgba(0,0,0,0.25);
   }
   .tc-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #16214a; }
-  #btnLeftG, #btnRightG{ width:48px; height:48px; bottom:14px; }
-  #btnLeftG{ left:12px; }
-  #btnRightG{ left:66px; }
+  #btnLeftG, #btnRightG{ width:48px; height:48px; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); }
+  #btnLeftG{ left:calc(12px + env(safe-area-inset-left, 0px)); }
+  #btnRightG{ left:calc(66px + env(safe-area-inset-left, 0px)); }
   #btnJumpG{
-    right:14px; bottom:14px; width:58px; height:58px;
+    right:calc(14px + env(safe-area-inset-right, 0px)); bottom:calc(18px + env(safe-area-inset-bottom, 0px)); width:58px; height:58px;
     background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%);
     box-shadow:0 4px 0 #16214a, 0 6px 12px rgba(255,139,103,0.4);
   }
@@ -213,6 +213,7 @@ function playTone(freq, startTime, duration, type, peakGain){
 function playJump(){ playTone(520, 0, 0.12, 'triangle', 0.1); }
 function playCoin(){ playTone(880, 0, 0.09, 'triangle', 0.09); playTone(1320, 0.05, 0.09, 'triangle', 0.07); }
 function playHit(){ [400,280].forEach((f,i)=> playTone(f, i*0.08, 0.18, 'sawtooth', 0.1)); }
+function playStep(){ playTone(220, 0, 0.05, 'square', 0.045); }
 function playStomp(){ [660,330].forEach((f,i)=> playTone(f, i*0.06, 0.12, 'square', 0.1)); }
 function playPhase(){ [523,659,784,1047].forEach((f,i)=> playTone(f, i*0.09, 0.2, 'triangle', 0.12)); }
 function playVictory(){ [523,659,784,1047,1319].forEach((f,i)=> playTone(f, i*0.11, 0.28, 'triangle', 0.13)); }
@@ -513,7 +514,7 @@ document.querySelectorAll('.char-btn').forEach(btn => {
 let difficulty = 1, diffMult = 0.7;
 let score = 0, lives = 3, best = 0;
 let currentPhaseIdx = 0, currentPhase = null;
-let running = false, lastTs = 0, elapsed = 0, invulnT = 0;
+let running = false, lastTs = 0, elapsed = 0, invulnT = 0, stepAcc = 0;
 let cameraX = 0;
 let playerName = 'Jogador', playerCharId = 'pikachu';
 
@@ -553,6 +554,7 @@ function loadPhase(idx){
   player.y = def.playerStart.y;
   player.vx = 0; player.vy = 0; player.onGround = false; player.facing = 1;
   invulnT = 1.0;
+  stepAcc = 0;
   cameraX = 0;
   updateHUD();
 }
@@ -581,12 +583,13 @@ function hitPlayer(){
   if(invulnT > 0 || !running) return;
   lives--;
   updateHUD();
-  playHit();
   if(lives <= 0){
     running = false;
+    playOver();
     if(score > best){ best = score; saveBest(best); }
     showMsg('😵', 'Game Over!', `${playerName}, você fez ${score} pontos. Recorde: ${best}.`, 'Jogar novamente', backToSetup);
   } else {
+    playHit();
     loadPhase(currentPhaseIdx);
   }
 }
@@ -655,6 +658,13 @@ function update(dt){
   const dir = (input.right ? 1 : 0) - (input.left ? 1 : 0);
   player.vx = dir * MOVE_SPEED;
   if(dir !== 0) player.facing = dir;
+
+  if(dir !== 0 && player.onGround){
+    stepAcc += dt;
+    if(stepAcc >= 0.26){ stepAcc = 0; playStep(); }
+  } else {
+    stepAcc = 0;
+  }
 
   player.vy += GRAVITY * dt;
   if(player.vy > MAX_FALL) player.vy = MAX_FALL;
