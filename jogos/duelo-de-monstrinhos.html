@@ -29,7 +29,11 @@
   .backbtn{ width:30px; height:30px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:0.95rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); flex:0 0 auto; }
   .mini-title{ font-family:'Baloo 2', cursive; font-size:0.78rem; color:var(--plum); }
 
-  .hand-row{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; flex:0 0 auto; padding:3px 0; }
+  .hud-bar{ display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; padding:2px 6px; }
+  .hud-name{ font-family:'Baloo 2', cursive; font-size:0.7rem; color:var(--plum); display:flex; align-items:center; gap:4px; }
+  .hud-score{ font-family:'Baloo 2', cursive; font-size:0.7rem; color:var(--plum-soft); background:white; border-radius:999px; padding:2px 9px; box-shadow:0 2px 6px rgba(61,52,139,0.12); }
+
+  .hand-row{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; flex:0 0 auto; padding:2px 0; }
 
   .board{ position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; overflow-y:auto; }
   .duel-card{ display:flex; justify-content:center; width:100%; flex:0 0 auto; }
@@ -52,17 +56,27 @@
   .hpbar-fill{ height:100%; transition:width .3s ease; }
   .card-portrait{
     flex:1 1 auto; min-height:0; border-radius:12px; display:flex; align-items:center; justify-content:center;
-    font-size:3.2rem; box-shadow:inset 0 -6px 0 rgba(0,0,0,0.1);
+    font-size:3.2rem; box-shadow:inset 0 -6px 0 rgba(0,0,0,0.1); overflow:hidden;
   }
+  .card-portrait img{ width:100%; height:100%; object-fit:cover; }
   .card-meta{ font-size:0.6rem; font-weight:700; color:var(--plum-soft); line-height:1.25; flex:0 0 auto; }
-  .weak-tag{ display:inline-block; margin-top:1px; }
 
-  .vs-divider{ display:flex; flex-direction:column; align-items:center; gap:2px; flex:0 0 auto; position:relative; z-index:2; margin:-6px 0; }
+  .card-veil{
+    position:absolute; inset:4px; border-radius:12px; z-index:5; display:flex; align-items:center; justify-content:center;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0 8px, transparent 8px 16px),
+      linear-gradient(160deg, var(--plum) 0%, var(--plum-soft) 100%);
+    font-size:2.6rem; color:white; opacity:1; transform:scale(1); transition:opacity .28s ease, transform .28s ease;
+  }
+  .card-veil.hidden-veil{ opacity:0; transform:scale(0.55); pointer-events:none; }
+
+  .vs-divider{ display:flex; flex-direction:column; align-items:center; gap:4px; flex:0 0 auto; position:relative; z-index:2; margin:-6px 0; }
   .vs-txt{
     width:32px; height:32px; border-radius:50%; background:linear-gradient(180deg,#FFD166,#E0A800);
     color:white; font-family:'Baloo 2', cursive; font-weight:800; font-size:0.78rem;
     display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.22), 0 0 0 3px white;
   }
+  .fight-btn{ display:none; font-size:0.8rem; padding:8px 18px; }
 
   .big-flash{
     position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.5); z-index:30;
@@ -82,22 +96,12 @@
     100%{ transform:translate(-50%,-50%) scale(0.9); opacity:0; }
   }
 
-  .attacks{ display:flex; flex-direction:column; gap:4px; margin-top:5px; flex:0 0 auto; }
-  button.atk-btn{
-    font-family:'Baloo 2', cursive; font-size:0.64rem; border:none; border-radius:9px; padding:5px 6px;
-    cursor:pointer; color:white; box-shadow:0 3px 0 rgba(0,0,0,0.18); transition:transform .1s ease, box-shadow .1s ease;
-    display:flex; align-items:center; justify-content:space-between; gap:4px;
-  }
-  button.atk-btn:active{ transform:translateY(3px); box-shadow:none; }
-  button.atk-btn:disabled{ opacity:0.45; cursor:default; }
-  button.atk-btn .dmg{ font-size:0.6rem; opacity:0.95; white-space:nowrap; }
-
-  .hand-row{ }
   .mini-card{
     width:36px; height:50px; border-radius:8px; display:flex; align-items:center; justify-content:center;
     font-size:1.2rem; position:relative; cursor:pointer; border:3px solid transparent; -webkit-tap-highlight-color:transparent;
-    box-shadow:0 3px 8px rgba(61,52,139,0.15); transition:transform .1s ease;
+    box-shadow:0 3px 8px rgba(61,52,139,0.15); transition:transform .1s ease; overflow:hidden;
   }
+  .mini-card img{ width:100%; height:100%; object-fit:cover; }
   .mini-card:active{ transform:scale(0.92); }
   .mini-card.ko{ opacity:0.3; filter:grayscale(1); cursor:default; }
   .mini-card.active{ border-color:var(--yellow); }
@@ -111,7 +115,7 @@
 
   .dmg-pop{
     position:absolute; top:6px; right:8px; font-family:'Baloo 2', cursive; font-weight:800; font-size:1rem;
-    color:#FF6B6B; text-shadow:0 2px 4px rgba(0,0,0,0.15); pointer-events:none; animation:dmgFloat .8s ease-out forwards;
+    color:#FF6B6B; text-shadow:0 2px 4px rgba(0,0,0,0.15); pointer-events:none; animation:dmgFloat .8s ease-out forwards; z-index:6;
   }
   .dmg-pop.bonus{ color:#E0A800; }
   @keyframes dmgFloat{
@@ -122,14 +126,13 @@
 
   .overlay{
     position:fixed; inset:0; background:rgba(61,52,139,0.62); display:none; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center; color:white; padding:16px; z-index:20;
+    align-items:center; justify-content:center; text-align:center; color:white; padding:16px; z-index:20; overflow-y:auto;
   }
   .overlay.show{ display:flex; }
   .overlay .big-emoji{ font-size:2.2rem; margin-bottom:2px; }
   .overlay h2{ margin:2px 0; font-size:1.1rem; }
   .overlay p{ margin:0 0 10px; font-weight:600; font-size:0.85rem; max-width:320px; }
-  #pickOverlay{ pointer-events:none; }
-  .pick-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; pointer-events:auto; }
+  .pick-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
   .btn{
     font-family:'Baloo 2', cursive; font-size:0.9rem; border:none; border-radius:14px; padding:11px 20px; cursor:pointer;
     box-shadow:0 6px 14px rgba(61,52,139,0.25); transition:transform .12s ease;
@@ -142,6 +145,30 @@
   #btnEasy{ background:linear-gradient(180deg, #3AE0AE 0%, var(--mint) 100%); }
   #btnMed{ background:linear-gradient(180deg, #FFDD8F 0%, var(--yellow) 100%); color:var(--ink); }
   #btnHard{ background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%); }
+
+  .deck-toggle{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:10px 0 4px; }
+  .deck-btn{ background:rgba(255,255,255,0.25); color:white; font-size:0.78rem; padding:9px 14px; }
+  .deck-btn.selected{ background:white; color:var(--plum); }
+
+  .family-list{ width:100%; max-width:380px; display:flex; flex-direction:column; gap:10px; margin:8px 0 12px; }
+  .family-row{
+    background:rgba(255,255,255,0.14); border-radius:14px; padding:8px 10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .family-photo{
+    width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,0.9); flex:0 0 auto; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:1.3rem; overflow:hidden; border:2px solid white;
+  }
+  .family-photo img{ width:100%; height:100%; object-fit:cover; }
+  .family-name{
+    flex:1 1 90px; min-width:80px; border:none; border-radius:8px; padding:8px 8px; font-family:'Quicksand',sans-serif;
+    font-weight:700; font-size:0.8rem; color:var(--ink);
+  }
+  .family-powers{ display:flex; gap:4px; flex:0 0 auto; }
+  .power-btn{
+    width:26px; height:26px; border-radius:50%; border:2px solid transparent; display:flex; align-items:center; justify-content:center;
+    font-size:0.85rem; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .power-btn.selected{ border-color:white; transform:scale(1.12); }
 </style>
 </head>
 <body>
@@ -151,6 +178,10 @@
     <span class="mini-title">🎴 DUELO DAS CARTAS — 🤖 Computador</span>
   </div>
 
+  <div class="hud-bar">
+    <span class="hud-name">🤖 Computador</span>
+    <span class="hud-score">🪙 <span id="aiScoreNum">0</span></span>
+  </div>
   <div class="hand-row" id="aiHand"></div>
 
   <div class="board">
@@ -160,12 +191,14 @@
         <div class="card-portrait" id="aiPortrait">🐣</div>
         <div class="hpbar-wrap"><div class="hpbar-fill" id="aiHpFill"></div></div>
         <div class="card-meta" id="aiMeta"></div>
+        <div class="card-veil" id="aiVeil">❓</div>
       </div>
     </div>
 
     <div class="vs-divider">
       <span class="vs-txt">VS</span>
       <div class="battle-log" id="battleLog">Escolha o nível pra começar!</div>
+      <button class="btn btn-primary fight-btn" id="fightBtn">⚔️ Lutar!</button>
     </div>
 
     <div class="duel-card player" id="playerCardWrap">
@@ -174,17 +207,26 @@
         <div class="card-portrait" id="playerPortrait">🐣</div>
         <div class="hpbar-wrap"><div class="hpbar-fill" id="playerHpFill"></div></div>
         <div class="card-meta" id="playerMeta"></div>
-        <div class="attacks" id="playerAttacks"></div>
+        <div class="card-veil" id="playerVeil">❓</div>
       </div>
     </div>
   </div>
 
   <div class="hand-row" id="playerHand"></div>
+  <div class="hud-bar">
+    <span class="hud-name">🧑 Você</span>
+    <span class="hud-score">🪙 <span id="playerScoreNum">0</span></span>
+  </div>
 
   <div class="overlay show" id="setupOverlay">
     <div class="big-emoji">🎴</div>
     <h2>DUELO DAS CARTAS</h2>
-    <p>Cada monstrinho tem um tipo, PS (vida) e ataques. Use o tipo certo pra causar dano extra! Escolha o nível:</p>
+    <p>Cada monstrinho tem um poder: 💧 Água, 🔥 Fogo, 🪨 Pedra, 📄 Papel ou ✂️ Tesoura. Escolha sua carta escondida, revele com o adversário e veja quem vence!</p>
+    <div class="deck-toggle">
+      <button class="btn deck-btn selected" id="deckDefaultBtn">🎨 Personagens</button>
+      <button class="btn deck-btn" id="deckFamilyBtn">👨‍👩‍👧 Minha Família</button>
+    </div>
+    <button class="btn btn-secondary" id="editFamilyBtn" style="display:none;">✏️ Editar minha família</button>
     <div class="level-choices">
       <button class="btn" id="btnEasy">⭐ Fácil</button>
       <button class="btn" id="btnMed">⭐⭐ Médio</button>
@@ -192,13 +234,13 @@
     </div>
   </div>
 
-  <div class="overlay" id="pickOverlay">
-    <div class="big-emoji">🔄</div>
-    <h2>Seu monstrinho caiu!</h2>
-    <p>Escolha o próximo pra entrar em campo (toque num monstrinho abaixo).</p>
+  <div class="overlay" id="familyOverlay">
+    <div class="big-emoji">👨‍👩‍👧</div>
+    <h2>Minha Família</h2>
+    <p>Escolha uma foto, um nome e um poder pra cada um. Sem foto, usamos um desenho no lugar!</p>
+    <div class="family-list" id="familyList"></div>
     <div class="pick-actions">
-      <button class="btn btn-primary" id="pickRestartBtn">Jogar novamente</button>
-      <a class="btn btn-secondary" href="../menu.html">Voltar ao menu</a>
+      <button class="btn btn-primary" id="familyDoneBtn">✅ Pronto</button>
     </div>
   </div>
 
@@ -230,39 +272,57 @@ function playTone(freq, startTime, duration, type, peakGain){
 function playAttack(){ playTone(500, 0, 0.08, 'sawtooth', 0.09); playTone(300, 0.05, 0.08, 'sawtooth', 0.07); }
 function playBonus(){ playTone(900, 0, 0.1, 'triangle', 0.1); }
 function playFaint(){ [400,300,200].forEach((f,i)=> playTone(f, i*0.08, 0.16, 'sawtooth', 0.1)); }
-function playSwitch(){ [600,800].forEach((f,i)=> playTone(f, i*0.06, 0.08, 'square', 0.07)); }
+function playFlip(){ [700,950].forEach((f,i)=> playTone(f, i*0.05, 0.09, 'square', 0.08)); }
+function playClash(){ playTone(220, 0, 0.14, 'sawtooth', 0.1); }
 function playVictory(){ [523,659,784,1047,1319].forEach((f,i)=> playTone(f, i*0.11, 0.26, 'triangle', 0.13)); }
 function playOver(){ [392,330,262,220].forEach((f,i)=> playTone(f, i*0.12, 0.22, 'sine', 0.11)); }
+function playClick(){ playTone(650, 0, 0.07, 'triangle', 0.09); }
 
-const TYPE_COLORS = {
-  fogo:{bg:'#FF8B67', dark:'#E8483A'}, agua:{bg:'#4EA8DE', dark:'#2C6FC2'},
-  planta:{bg:'#7ED957', dark:'#4C9E2E'}, eletrico:{bg:'#FFD166', dark:'#E0A800'},
-  sombra:{bg:'#9B6FDE', dark:'#6B4FA0'}
+const POWERS = ['agua','fogo','pedra','papel','tesoura'];
+const POWER_COLORS = {
+  agua:{bg:'#4EA8DE', dark:'#2C6FC2'}, fogo:{bg:'#FF8B67', dark:'#E8483A'},
+  pedra:{bg:'#ADA79C', dark:'#77706A'}, papel:{bg:'#FFE9B8', dark:'#D9A93F'},
+  tesoura:{bg:'#C3CADA', dark:'#8B93A8'}
 };
-const TYPE_EMOJI = { fogo:'🔥', agua:'💧', planta:'🌿', eletrico:'⚡', sombra:'🌙' };
-const TYPE_NAME = { fogo:'Fogo', agua:'Água', planta:'Planta', eletrico:'Elétrico', sombra:'Sombra' };
+const POWER_EMOJI = { agua:'💧', fogo:'🔥', pedra:'🪨', papel:'📄', tesoura:'✂️' };
+const POWER_NAME = { agua:'Água', fogo:'Fogo', pedra:'Pedra', papel:'Papel', tesoura:'Tesoura' };
+const BEATS = {
+  agua: ['fogo','pedra'], fogo: ['papel','tesoura'], pedra: ['tesoura','fogo'],
+  papel: ['pedra','agua'], tesoura: ['papel','agua']
+};
+function powerBeats(a,b){ return BEATS[a].includes(b); }
 
 const CARD_POOL = [
-  {id:'flamitos', name:'Flamitos', type:'fogo', emoji:'🦎', hp:90, weakTo:'agua', attacks:[{name:'Chamas',dmg:20},{name:'Bola de Fogo',dmg:45}]},
-  {id:'vulcanho', name:'Vulcanho', type:'fogo', emoji:'🐉', hp:110, weakTo:'agua', attacks:[{name:'Lava',dmg:25},{name:'Erupção',dmg:55}]},
-  {id:'aquari', name:'Aquari', type:'agua', emoji:'🐢', hp:95, weakTo:'eletrico', attacks:[{name:'Jato d’Água',dmg:20},{name:'Onda Gigante',dmg:45}]},
-  {id:'marejo', name:'Marejo', type:'agua', emoji:'🐙', hp:105, weakTo:'eletrico', attacks:[{name:'Borrifada',dmg:25},{name:'Maremoto',dmg:50}]},
-  {id:'folharina', name:'Folharina', type:'planta', emoji:'🐌', hp:90, weakTo:'fogo', attacks:[{name:'Chicote',dmg:20},{name:'Fúria Verde',dmg:45}]},
-  {id:'raizudo', name:'Raizudo', type:'planta', emoji:'🦔', hp:115, weakTo:'fogo', attacks:[{name:'Investida',dmg:25},{name:'Esporos',dmg:40}]},
-  {id:'voltz', name:'Voltz', type:'eletrico', emoji:'🐿️', hp:80, weakTo:'planta', attacks:[{name:'Choque',dmg:25},{name:'Trovão',dmg:55}]},
-  {id:'faiscoso', name:'Faiscoso', type:'eletrico', emoji:'🦋', hp:85, weakTo:'planta', attacks:[{name:'Faísca',dmg:30},{name:'Raio Total',dmg:50}]},
-  {id:'sombrix', name:'Sombrix', type:'sombra', emoji:'🦇', hp:85, weakTo:'eletrico', attacks:[{name:'Garra Sombria',dmg:25},{name:'Pesadelo',dmg:50}]},
-  {id:'fantasminho', name:'Fantasminho', type:'sombra', emoji:'👻', hp:90, weakTo:'fogo', attacks:[{name:'Sussurro',dmg:20},{name:'Grito Fantasma',dmg:45}]}
+  {id:'flamitos', name:'Flamitos', power:'fogo', emoji:'🦎', hp:90},
+  {id:'vulcanho', name:'Vulcanho', power:'fogo', emoji:'🐉', hp:110},
+  {id:'aquari', name:'Aquari', power:'agua', emoji:'🐢', hp:95},
+  {id:'marejo', name:'Marejo', power:'agua', emoji:'🐙', hp:105},
+  {id:'folharina', name:'Folharina', power:'pedra', emoji:'🐌', hp:90},
+  {id:'raizudo', name:'Raizudo', power:'pedra', emoji:'🦔', hp:115},
+  {id:'voltz', name:'Voltz', power:'papel', emoji:'🐿️', hp:80},
+  {id:'faiscoso', name:'Faiscoso', power:'papel', emoji:'🦋', hp:85},
+  {id:'sombrix', name:'Sombrix', power:'tesoura', emoji:'🦇', hp:85},
+  {id:'fantasminho', name:'Fantasminho', power:'tesoura', emoji:'👻', hp:90}
 ];
-const WEAKNESS_BONUS = 20;
+const ROUND_DMG = 35, CLASH_DMG = 15;
 const DIFF_LABEL = {1:'Fácil', 2:'Médio', 3:'Difícil'};
 
+const FAMILY_SLOTS = [
+  {key:'papai', label:'Papai', emoji:'👨'},
+  {key:'mamae', label:'Mamãe', emoji:'👩'},
+  {key:'filho', label:'Filho(a)', emoji:'🧒'},
+  {key:'bebe', label:'Bebê', emoji:'👶'},
+  {key:'cachorro', label:'Cachorro', emoji:'🐶'}
+];
+const FAMILY_KEY = 'duelo_family_deck';
+
 let difficulty = 2;
+let deckMode = 'default';
 let playerHand = [], aiHand = [];
-let playerActiveIdx = 0, aiActiveIdx = 0;
-let turn = 'player';
+let playerScore = 0, aiScore = 0;
 let running = false;
-let pendingPlayerChoice = false;
+let roundState = 'setup';
+let pendingPlayerIdx = null;
 
 function shuffle(arr){
   const a = arr.slice();
@@ -274,24 +334,61 @@ function shuffle(arr){
 }
 function cloneCard(def){ return {...def, currentHp: def.hp}; }
 
+function loadFamilyDeck(){
+  let saved = {};
+  try{ saved = JSON.parse(localStorage.getItem(FAMILY_KEY) || '{}'); }catch(e){}
+  return FAMILY_SLOTS.map((slot, i) => {
+    const s = saved[slot.key] || {};
+    return {
+      key: slot.key, label: slot.label, emoji: slot.emoji,
+      name: s.name || slot.label,
+      power: s.power || POWERS[i % POWERS.length],
+      photo: s.photo || null
+    };
+  });
+}
+function saveFamilyDeck(deck){
+  const obj = {};
+  deck.forEach(c => { obj[c.key] = { name:c.name, power:c.power, photo:c.photo }; });
+  try{ localStorage.setItem(FAMILY_KEY, JSON.stringify(obj)); }catch(e){}
+}
+function buildFamilyHand(){
+  return loadFamilyDeck().map(c => ({
+    id:'fam_'+c.key, name:c.name, power:c.power, emoji:c.emoji, photo:c.photo, hp:100, currentHp:100
+  }));
+}
+
 function startGame(level){
   difficulty = level;
-  const shuffled = shuffle(CARD_POOL);
-  playerHand = shuffled.slice(0,5).map(cloneCard);
-  aiHand = shuffled.slice(5,10).map(cloneCard);
-  playerActiveIdx = 0; aiActiveIdx = 0;
-  turn = 'player'; running = true; pendingPlayerChoice = false;
+  if(deckMode === 'family'){
+    playerHand = buildFamilyHand();
+    aiHand = shuffle(CARD_POOL).slice(0,5).map(cloneCard);
+  } else {
+    const shuffled = shuffle(CARD_POOL);
+    playerHand = shuffled.slice(0,5).map(cloneCard);
+    aiHand = shuffled.slice(5,10).map(cloneCard);
+  }
+  playerScore = 0; aiScore = 0;
+  running = true; roundState = 'picking'; pendingPlayerIdx = null;
   document.getElementById('setupOverlay').classList.remove('show');
+  document.getElementById('familyOverlay').classList.remove('show');
   document.getElementById('msgOverlay').classList.remove('show');
-  document.getElementById('pickOverlay').classList.remove('show');
-  setLog(`Nível ${DIFF_LABEL[level]}! Sua vez — ataque!`);
+  setLog(`Nível ${DIFF_LABEL[level]}! Toque numa carta lá embaixo e depois em Lutar.`);
   renderAll();
+  showVeils();
+}
+
+function showVeils(){
+  document.getElementById('aiVeil').classList.remove('hidden-veil');
+  document.getElementById('playerVeil').classList.remove('hidden-veil');
+  document.getElementById('aiCard').style.borderColor = 'transparent';
+  document.getElementById('playerCard').style.borderColor = 'transparent';
 }
 
 function setLog(text){ document.getElementById('battleLog').textContent = text; }
 
-function renderCardEl(prefix, card, isActive){
-  const t = TYPE_COLORS[card.type];
+function renderCardEl(prefix, card){
+  const t = POWER_COLORS[card.power];
   document.getElementById(prefix+'Name').textContent = card.name;
   document.getElementById(prefix+'HpNum').textContent = Math.max(0, card.currentHp);
   const pct = Math.max(0, card.currentHp/card.hp*100);
@@ -299,54 +396,59 @@ function renderCardEl(prefix, card, isActive){
   fill.style.width = pct+'%';
   fill.style.background = pct>50 ? 'linear-gradient(90deg,#3AE0AE,#06D6A0)' : (pct>20 ? 'linear-gradient(90deg,#FFDD8F,#FFD166)' : 'linear-gradient(90deg,#FF9B8F,#FF6B6B)');
   const portrait = document.getElementById(prefix+'Portrait');
-  portrait.textContent = card.emoji;
+  if(card.photo){
+    portrait.innerHTML = `<img src="${card.photo}" alt="${card.name}">`;
+  } else {
+    portrait.innerHTML = '';
+    portrait.textContent = card.emoji;
+  }
   portrait.style.background = t.bg;
-  document.getElementById(prefix+'Meta').innerHTML =
-    `${TYPE_EMOJI[card.type]} ${TYPE_NAME[card.type]}<br><span class="weak-tag">Fraco contra ${TYPE_EMOJI[card.weakTo]} ${TYPE_NAME[card.weakTo]}</span>`;
+  document.getElementById(prefix+'Meta').innerHTML = `${POWER_EMOJI[card.power]} ${POWER_NAME[card.power]}`;
   document.getElementById(prefix+'Card').style.borderColor = card.currentHp<=0 ? '#ccc' : t.bg;
 }
 
-function renderHandStrip(elId, hand, activeIdx, clickable){
+function renderMiniCard(card){
+  const div = document.createElement('div');
+  const t = POWER_COLORS[card.power];
+  div.className = 'mini-card' + (card.currentHp<=0 ? ' ko' : '');
+  div.style.background = t.bg;
+  if(card.photo){
+    div.innerHTML = `<img src="${card.photo}" alt="${card.name}">`;
+  } else {
+    div.textContent = card.emoji;
+  }
+  return div;
+}
+
+function renderHandStrip(elId, hand, clickable, activeIdx){
   const el = document.getElementById(elId);
   el.innerHTML = '';
   hand.forEach((card, i) => {
-    const div = document.createElement('div');
-    const t = TYPE_COLORS[card.type];
-    div.className = 'mini-card' + (card.currentHp<=0 ? ' ko' : '') + (i===activeIdx ? ' active' : '');
-    if(clickable && card.currentHp>0 && i!==activeIdx) div.classList.add('pickable');
-    div.style.background = t.bg;
-    div.textContent = card.emoji;
-    if(clickable && card.currentHp>0 && i!==activeIdx){
-      div.addEventListener('click', () => onHandCardClick(i));
+    const div = renderMiniCard(card);
+    if(i===activeIdx) div.classList.add('active');
+    if(clickable && card.currentHp>0) div.classList.add('pickable');
+    if(clickable && card.currentHp>0){
+      div.style.cursor = 'pointer';
+      div.addEventListener('click', () => onPlayerCardPick(i));
+    } else {
+      div.style.cursor = 'default';
     }
     el.appendChild(div);
   });
 }
 
-function renderPlayerAttacks(){
-  const el = document.getElementById('playerAttacks');
-  el.innerHTML = '';
-  const card = playerHand[playerActiveIdx];
-  if(!card) return;
-  card.attacks.forEach((atk, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'atk-btn';
-    const t = TYPE_COLORS[card.type];
-    btn.style.background = `linear-gradient(180deg, ${t.bg} 0%, ${t.dark} 100%)`;
-    btn.innerHTML = `${atk.name}<span class="dmg">💥 ${atk.dmg}</span>`;
-    const enabled = running && turn==='player' && !pendingPlayerChoice && card.currentHp>0;
-    btn.disabled = !enabled;
-    btn.addEventListener('click', () => resolveAttack('player', idx));
-    el.appendChild(btn);
-  });
-}
-
 function renderAll(){
-  renderCardEl('ai', aiHand[aiActiveIdx], true);
-  renderCardEl('player', playerHand[playerActiveIdx], true);
-  renderHandStrip('aiHand', aiHand, aiActiveIdx, false);
-  renderHandStrip('playerHand', playerHand, playerActiveIdx, running && (pendingPlayerChoice || turn==='player'));
-  renderPlayerAttacks();
+  renderCardEl('ai', aiHand.find(c=>c.currentHp>0) || aiHand[0] || {name:'-',power:'agua',emoji:'🐣',hp:1,currentHp:0});
+  renderCardEl('player', playerHand.find(c=>c.currentHp>0) || playerHand[0] || {name:'-',power:'agua',emoji:'🐣',hp:1,currentHp:0});
+  renderHandStrip('aiHand', aiHand, false, -1);
+  renderHandStrip('playerHand', playerHand, running && roundState==='picking', pendingPlayerIdx);
+  document.getElementById('aiScoreNum').textContent = aiScore;
+  document.getElementById('playerScoreNum').textContent = playerScore;
+  document.getElementById('fightBtn').style.display = (running && roundState==='picking' && pendingPlayerIdx!==null) ? 'inline-block' : 'none';
+  if(roundState === 'picking'){
+    document.getElementById('aiCard').style.borderColor = 'transparent';
+    document.getElementById('playerCard').style.borderColor = 'transparent';
+  }
 }
 
 function popDamage(prefix, text, bonus){
@@ -374,115 +476,109 @@ function flashCards(attackerPrefix, defenderPrefix){
   setTimeout(()=>{ a.classList.remove('win-glow'); d.classList.remove('hit-shake'); }, 500);
 }
 
-function resolveAttack(side, atkIdx){
-  if(!running) return;
-  if(side==='player' && (turn!=='player' || pendingPlayerChoice)) return;
-  const attackerHand = side==='player' ? playerHand : aiHand;
-  const attackerIdx = side==='player' ? playerActiveIdx : aiActiveIdx;
-  const defenderHand = side==='player' ? aiHand : playerHand;
-  const defenderIdx = side==='player' ? aiActiveIdx : playerActiveIdx;
-  const attacker = attackerHand[attackerIdx];
-  const defender = defenderHand[defenderIdx];
-  const atk = attacker.attacks[atkIdx];
-  let dmg = atk.dmg;
-  const bonus = attacker.type === defender.weakTo;
-  if(bonus) dmg += WEAKNESS_BONUS;
-  defender.currentHp = Math.max(0, defender.currentHp - dmg);
-
-  playAttack();
-  if(bonus) setTimeout(playBonus, 90);
-  const who = side==='player' ? 'Seu' : 'O';
-  const attackerPrefix = side==='player' ? 'player' : 'ai';
-  const target = side==='player' ? 'ai' : 'player';
-  setLog(`${who} ${attacker.name} usou ${atk.name}! -${dmg} PS${bonus ? ' (fraqueza! +20)' : ''}`);
-  popDamage(target, '-'+dmg, bonus);
-  flashCards(attackerPrefix, target);
-  showBigFlash(bonus ? '⚡💥' : '💥', `${atk.name}! -${dmg} PS${bonus ? ' — SUPER EFEITO!' : ''}`, side==='player' ? 'good' : 'bad');
+function onPlayerCardPick(idx){
+  if(!running || roundState!=='picking') return;
+  if(playerHand[idx].currentHp<=0) return;
+  pendingPlayerIdx = idx;
+  playClick();
+  setLog(`${playerHand[idx].name} escolhido! Toque em Lutar.`);
   renderAll();
-
-  setTimeout(() => afterAttack(side), 350);
 }
 
-function afterAttack(attackerSide){
-  const defenderSide = attackerSide==='player' ? 'ai' : 'player';
-  const defenderHand = defenderSide==='player' ? playerHand : aiHand;
-  const defenderIdx = defenderSide==='player' ? playerActiveIdx : aiActiveIdx;
-  const defender = defenderHand[defenderIdx];
-
-  if(defender.currentHp <= 0){
-    playFaint();
-    setLog(`${defender.name} foi derrotado!`);
-    showBigFlash('💫', `${defender.name} foi derrotado!`, attackerSide==='player' ? 'good' : 'bad');
-    const alive = defenderHand.map((c,i)=>({c,i})).filter(o => o.c.currentHp>0);
-    if(alive.length === 0){
-      endGame(attackerSide);
-      return;
-    }
-    if(defenderSide === 'ai'){
-      aiActiveIdx = pickBestAiCard(alive);
-      turn = 'ai';
-      setTimeout(() => { setLog(`${aiHand[aiActiveIdx].name} do computador entrou em campo!`); renderAll(); setTimeout(aiTakeTurn, 900); }, 400);
-    } else {
-      pendingPlayerChoice = true;
-      document.getElementById('pickOverlay').classList.add('show');
-      renderAll();
-    }
-  } else {
-    turn = defenderSide;
-    renderAll();
-    if(defenderSide === 'ai'){
-      setTimeout(aiTakeTurn, 900);
-    } else {
-      setLog('Sua vez!');
-    }
+function pickAiIndex(){
+  const aliveAi = aiHand.map((c,i)=>({c,i})).filter(o => o.c.currentHp>0);
+  if(difficulty < 3){
+    return aliveAi[Math.floor(Math.random()*aliveAi.length)].i;
   }
-}
-
-function pickBestAiCard(aliveOptions){
-  if(difficulty < 3) return aliveOptions[0].i;
-  const player = playerHand[playerActiveIdx];
-  let best = aliveOptions[0];
-  aliveOptions.forEach(o => {
-    if(o.c.type === player.weakTo && best.c.type !== player.weakTo) best = o;
+  const alivePlayerPowers = playerHand.filter(c => c.currentHp>0).map(c => c.power);
+  let best = aliveAi[0], bestScore = -1;
+  aliveAi.forEach(o => {
+    let score = 0;
+    alivePlayerPowers.forEach(p => { if(powerBeats(o.c.power, p)) score++; });
+    if(score > bestScore){ bestScore = score; best = o; }
   });
   return best.i;
 }
 
-function onHandCardClick(idx){
-  if(!running) return;
-  if(pendingPlayerChoice){
-    playerActiveIdx = idx;
-    pendingPlayerChoice = false;
-    document.getElementById('pickOverlay').classList.remove('show');
-    playSwitch();
-    turn = 'player';
-    setLog(`${playerHand[idx].name} entrou em campo! Sua vez.`);
-    renderAll();
-    return;
+document.getElementById('fightBtn').onclick = () => {
+  if(!running || roundState!=='picking' || pendingPlayerIdx===null) return;
+  const playerCard = playerHand[pendingPlayerIdx];
+  const aiIdx = pickAiIndex();
+  const aiCard = aiHand[aiIdx];
+  roundState = 'revealing';
+  renderAll();
+  renderCardEl('ai', aiCard);
+  renderCardEl('player', playerCard);
+  playFlip();
+  document.getElementById('aiVeil').classList.add('hidden-veil');
+  document.getElementById('playerVeil').classList.add('hidden-veil');
+  setLog('Revelando as cartas...');
+  setTimeout(() => resolveRound(playerCard, aiCard), 550);
+};
+
+function resolveRound(playerCard, aiCard){
+  let winner = null;
+  if(playerCard.power === aiCard.power){
+    playerCard.currentHp = Math.max(0, playerCard.currentHp - CLASH_DMG);
+    aiCard.currentHp = Math.max(0, aiCard.currentHp - CLASH_DMG);
+    playClash();
+    setLog(`Empate de poder! ${POWER_EMOJI[playerCard.power]} vs ${POWER_EMOJI[aiCard.power]} — ambos -${CLASH_DMG} PS`);
+    popDamage('player', '-'+CLASH_DMG, false);
+    popDamage('ai', '-'+CLASH_DMG, false);
+    showBigFlash('💥', 'Choque de poderes!', null);
+  } else if(powerBeats(playerCard.power, aiCard.power)){
+    winner = 'player';
+    aiCard.currentHp = Math.max(0, aiCard.currentHp - ROUND_DMG);
+    playAttack(); setTimeout(playBonus, 90);
+    flashCards('player', 'ai');
+    setLog(`${POWER_EMOJI[playerCard.power]} ${POWER_NAME[playerCard.power]} vence ${POWER_EMOJI[aiCard.power]} ${POWER_NAME[aiCard.power]}! -${ROUND_DMG} PS no ${aiCard.name}`);
+    popDamage('ai', '-'+ROUND_DMG, true);
+    showBigFlash('⚡💥', `Você venceu a rodada! -${ROUND_DMG} PS`, 'good');
+  } else {
+    winner = 'ai';
+    playerCard.currentHp = Math.max(0, playerCard.currentHp - ROUND_DMG);
+    playAttack(); setTimeout(playBonus, 90);
+    flashCards('ai', 'player');
+    setLog(`${POWER_EMOJI[aiCard.power]} ${POWER_NAME[aiCard.power]} vence ${POWER_EMOJI[playerCard.power]} ${POWER_NAME[playerCard.power]}! -${ROUND_DMG} PS no ${playerCard.name}`);
+    popDamage('player', '-'+ROUND_DMG, true);
+    showBigFlash('⚡💥', `O computador venceu a rodada! -${ROUND_DMG} PS`, 'bad');
   }
-  if(turn === 'player' && playerHand[idx].currentHp > 0 && idx !== playerActiveIdx){
-    playerActiveIdx = idx;
-    playSwitch();
-    setLog(`Você trocou para ${playerHand[idx].name}.`);
-    turn = 'ai';
+  renderCardEl('ai', aiCard);
+  renderCardEl('player', playerCard);
+  renderAll();
+
+  setTimeout(() => {
+    let koHappened = false;
+    if(aiCard.currentHp <= 0 && winner === 'player'){
+      playerScore++;
+      playFaint();
+      showBigFlash('💫', `${aiCard.name} foi derrotado!`, 'good');
+      koHappened = true;
+    }
+    if(playerCard.currentHp <= 0 && winner === 'ai'){
+      aiScore++;
+      playFaint();
+      showBigFlash('💫', `${playerCard.name} foi derrotado!`, 'bad');
+      koHappened = true;
+    }
     renderAll();
-    setTimeout(aiTakeTurn, 900);
-  }
+
+    const aiAlive = aiHand.some(c => c.currentHp>0);
+    const playerAlive = playerHand.some(c => c.currentHp>0);
+    if(!aiAlive){ endGame('player'); return; }
+    if(!playerAlive){ endGame('ai'); return; }
+
+    setTimeout(startNextRound, koHappened ? 700 : 300);
+  }, 700);
 }
 
-function aiTakeTurn(){
-  if(!running || turn !== 'ai') return;
-  const ai = aiHand[aiActiveIdx];
-  const player = playerHand[playerActiveIdx];
-  let atkIdx;
-  if(difficulty === 1){
-    atkIdx = Math.random() < 0.5 ? 0 : 1;
-  } else {
-    const d0 = ai.attacks[0].dmg + (ai.type===player.weakTo ? WEAKNESS_BONUS : 0);
-    const d1 = ai.attacks[1].dmg + (ai.type===player.weakTo ? WEAKNESS_BONUS : 0);
-    atkIdx = d1 > d0 ? 1 : 0;
-  }
-  resolveAttack('ai', atkIdx);
+function startNextRound(){
+  if(!running) return;
+  pendingPlayerIdx = null;
+  roundState = 'picking';
+  setLog('Escolha sua próxima carta!');
+  renderAll();
+  showVeils();
 }
 
 function endGame(winnerSide){
@@ -504,18 +600,116 @@ function showMsg(emoji, title, text, btnLabel, onClick){
   btn.textContent = btnLabel; btn.onclick = onClick;
   document.getElementById('msgOverlay').classList.add('show');
 }
-function backToSetup(){
-  running = false;
-  pendingPlayerChoice = false;
-  document.getElementById('pickOverlay').classList.remove('show');
-  document.getElementById('msgOverlay').classList.remove('show');
-  document.getElementById('setupOverlay').classList.add('show');
-}
 
 document.getElementById('btnEasy').onclick = () => startGame(1);
 document.getElementById('btnMed').onclick = () => startGame(2);
 document.getElementById('btnHard').onclick = () => startGame(3);
-document.getElementById('pickRestartBtn').onclick = () => startGame(difficulty);
+
+document.getElementById('deckDefaultBtn').onclick = () => {
+  deckMode = 'default';
+  document.getElementById('deckDefaultBtn').classList.add('selected');
+  document.getElementById('deckFamilyBtn').classList.remove('selected');
+  document.getElementById('editFamilyBtn').style.display = 'none';
+  playClick();
+};
+document.getElementById('deckFamilyBtn').onclick = () => {
+  deckMode = 'family';
+  document.getElementById('deckFamilyBtn').classList.add('selected');
+  document.getElementById('deckDefaultBtn').classList.remove('selected');
+  document.getElementById('editFamilyBtn').style.display = 'inline-block';
+  playClick();
+};
+document.getElementById('editFamilyBtn').onclick = () => openFamilyEditor();
+
+function cropToSquareDataUrl(file, size){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(size/img.width, size/img.height);
+        const w = img.width*scale, h = img.height*scale;
+        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.88));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function openFamilyEditor(){
+  const deck = loadFamilyDeck();
+  const el = document.getElementById('familyList');
+  el.innerHTML = '';
+  deck.forEach(card => {
+    const row = document.createElement('div');
+    row.className = 'family-row';
+
+    const photo = document.createElement('div');
+    photo.className = 'family-photo';
+    if(card.photo){ photo.innerHTML = `<img src="${card.photo}" alt="${card.name}">`; }
+    else { photo.textContent = card.emoji; }
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      try{
+        const dataUrl = await cropToSquareDataUrl(file, 240);
+        card.photo = dataUrl;
+        photo.innerHTML = `<img src="${dataUrl}" alt="${card.name}">`;
+        saveFamilyDeck(deck);
+        playClick();
+      }catch(err){}
+      e.target.value = '';
+    });
+    photo.onclick = () => fileInput.click();
+    row.appendChild(photo);
+    row.appendChild(fileInput);
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text'; nameInput.className = 'family-name'; nameInput.maxLength = 14;
+    nameInput.value = card.name;
+    nameInput.addEventListener('input', () => {
+      card.name = nameInput.value.trim() || card.label;
+      saveFamilyDeck(deck);
+    });
+    row.appendChild(nameInput);
+
+    const powersEl = document.createElement('div');
+    powersEl.className = 'family-powers';
+    POWERS.forEach(p => {
+      const pbtn = document.createElement('div');
+      pbtn.className = 'power-btn' + (card.power===p ? ' selected' : '');
+      pbtn.style.background = POWER_COLORS[p].bg;
+      pbtn.textContent = POWER_EMOJI[p];
+      pbtn.title = POWER_NAME[p];
+      pbtn.onclick = () => {
+        card.power = p;
+        powersEl.querySelectorAll('.power-btn').forEach(b => b.classList.remove('selected'));
+        pbtn.classList.add('selected');
+        saveFamilyDeck(deck);
+        playClick();
+      };
+      powersEl.appendChild(pbtn);
+    });
+    row.appendChild(powersEl);
+
+    el.appendChild(row);
+  });
+  document.getElementById('setupOverlay').classList.remove('show');
+  document.getElementById('familyOverlay').classList.add('show');
+}
+document.getElementById('familyDoneBtn').onclick = () => {
+  document.getElementById('familyOverlay').classList.remove('show');
+  document.getElementById('setupOverlay').classList.add('show');
+};
 </script>
 </body>
 </html>
