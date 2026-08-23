@@ -609,6 +609,7 @@ function renderOnboarding(){
       await store.set('perfil:nome', profileName);
       cloudSyncProfile();
     }
+    try{ sessionStorage.setItem('joguinho_session_started', '1'); }catch(e){}
     playStartSound();
     window.location.replace('menu.html');
   };
@@ -1417,13 +1418,17 @@ const requestedTab = VALID_TABS.includes(requestedTabParam) ? requestedTabParam 
   await loadProfileExtra();
   const n = gridSize*gridSize;
   order = shuffle([...Array(n).keys()]);
+  let sessionStarted = false;
+  try{ sessionStarted = sessionStorage.getItem('joguinho_session_started') === '1'; }catch(e){}
   if(profileName){
-    if(!requestedTabParam){
+    if(requestedTabParam){
+      updateGreeting();
+      setTab(requestedTab);
+    } else if(sessionStarted){
       window.location.replace('menu.html');
-      return;
+    } else {
+      renderOnboarding();
     }
-    updateGreeting();
-    setTab(requestedTab);
   }else{
     renderOnboarding();
   }
