@@ -52,7 +52,8 @@
   .card-back,.card-front{ position:absolute; inset:0; backface-visibility:hidden; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; box-shadow:0 4px 10px rgba(61,52,139,.12); }
   .card-back{ background:linear-gradient(160deg, var(--coral), #FFA987); color:white; }
   .card-front{ background:white; transform:rotateY(180deg); }
-  .card.matched .card-inner{ opacity:.5; }
+  .card.matched .card-front{ opacity:.7; box-shadow:0 0 0 3px var(--mint) inset; }
+  .card.matched .card-back{ visibility:hidden; }
   button.btn{ font-family:'Baloo 2', cursive; font-size:1rem; border:none; border-radius:16px; padding:12px 20px; cursor:pointer; transition:transform .15s ease; }
   button.btn:active{ transform:scale(0.96); }
   .btn-primary{ background:var(--coral); color:white; width:100%; }
