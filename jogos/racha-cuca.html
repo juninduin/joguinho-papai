@@ -47,11 +47,15 @@
     transition:transform .16s cubic-bezier(.34,1.4,.64,1); padding:0; overflow:hidden;
   }
   .tile.numbers{
-    background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%);
-    color:white; font-family:'Baloo 2', cursive; font-weight:700; box-shadow:inset 0 -4px 0 rgba(0,0,0,0.14), 0 3px 6px rgba(0,0,0,0.2);
+    font-family:'Baloo 2', cursive; font-weight:700; box-shadow:inset 0 -4px 0 rgba(0,0,0,0.14), 0 3px 6px rgba(0,0,0,0.2);
   }
   .tile.image{ box-shadow:0 1px 3px rgba(0,0,0,0.35); background-repeat:no-repeat; }
   .tile:active{ filter:brightness(0.94); }
+  .tile.shake{ animation:tileShake .3s ease; }
+  @keyframes tileShake{
+    0%, 100%{ box-shadow:inset 0 -4px 0 rgba(0,0,0,0.14), 0 3px 6px rgba(0,0,0,0.2); }
+    50%{ box-shadow:inset 0 -4px 0 rgba(0,0,0,0.14), 0 0 0 4px rgba(255,255,255,0.6); }
+  }
 
   .peek-overlay{
     position:absolute; inset:0; background-size:cover; background-position:center;
@@ -169,6 +173,17 @@ function playTone(freq, startTime, duration, type, peakGain){
 function playSlide(){ playTone(360, 0, 0.07, 'triangle', 0.08); }
 function playWin(){ [523,659,784,1047,1319].forEach((f,i)=> playTone(f, i*0.1, 0.26, 'triangle', 0.13)); }
 
+const TILE_COLORS = [
+  {top:'#FFA588', base:'#FF8B67', text:'white'},
+  {top:'#3AE0AE', base:'#06D6A0', text:'white'},
+  {top:'#FFDD8F', base:'#FFD166', text:'#2C2A4A'},
+  {top:'#8B84C7', base:'#6C63AC', text:'white'},
+  {top:'#7CC3F0', base:'#4EA8DE', text:'white'},
+  {top:'#FF9BBE', base:'#FF6FA5', text:'white'},
+  {top:'#C6E86B', base:'#9ACD3C', text:'#2C2A4A'},
+  {top:'#FFB4A8', base:'#FF6F61', text:'white'}
+];
+
 const PHOTOS = [
   { id:'jl1', label:'Jhulya e Lorenzo', src:'../pessoas/Jhulya e Lorenzo 1.jpg' },
   { id:'jl2', label:'Jhulya e Lorenzo', src:'../pessoas/Jhulya e Lorenzo 2.jpg' },
@@ -259,10 +274,7 @@ function checkWin(){
   return true;
 }
 
-function onTileClick(id){
-  if(!running) return;
-  const p = tilePos[id];
-  if(!slideTileAt(p.r, p.c, true)) return;
+function finishMoveCheck(){
   if(checkWin()){
     running = false;
     stopTimer();
@@ -271,6 +283,29 @@ function onTileClick(id){
     document.getElementById('winStats').textContent = `${moves} movimentos em ${formatTime(secs)}`;
     document.getElementById('winOverlay').style.display = 'flex';
   }
+}
+
+function shakeTile(id){
+  const el = tileEls[id];
+  if(!el) return;
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+}
+
+function onTileClick(id){
+  if(!running) return;
+  const p = tilePos[id];
+  let moved = false;
+  if(p.r === blankRow && p.c !== blankCol){
+    const step = p.c < blankCol ? -1 : 1;
+    while(blankCol !== p.c){ slideTileAt(blankRow, blankCol+step, true); moved = true; }
+  } else if(p.c === blankCol && p.r !== blankRow){
+    const step = p.r < blankRow ? -1 : 1;
+    while(blankRow !== p.r){ slideTileAt(blankRow+step, blankCol, true); moved = true; }
+  }
+  if(!moved){ shakeTile(id); return; }
+  finishMoveCheck();
 }
 
 function renderBoard(){
@@ -286,6 +321,9 @@ function renderBoard(){
     el.style.fontSize = (mode==='numbers' ? (N===3 ? '1.8rem' : '1.4rem') : '1rem');
     if(mode === 'numbers'){
       el.textContent = id+1;
+      const col = TILE_COLORS[id % TILE_COLORS.length];
+      el.style.background = `linear-gradient(180deg, ${col.top} 0%, ${col.base} 100%)`;
+      el.style.color = col.text;
     } else {
       el.style.backgroundImage = `url("${photoSrc}")`;
       el.style.backgroundSize = `${N*100}% ${N*100}%`;
@@ -390,14 +428,7 @@ window.addEventListener('keydown', e => {
   else if(e.key==='ArrowRight'){ slideTileAt(blankRow, blankCol+1, true); }
   else return;
   e.preventDefault();
-  if(checkWin()){
-    running = false;
-    stopTimer();
-    playWin();
-    const secs = Math.floor((Date.now()-startTime)/1000);
-    document.getElementById('winStats').textContent = `${moves} movimentos em ${formatTime(secs)}`;
-    document.getElementById('winOverlay').style.display = 'flex';
-  }
+  finishMoveCheck();
 });
 </script>
 </body>
