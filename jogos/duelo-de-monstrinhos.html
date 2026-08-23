@@ -29,9 +29,22 @@
   .backbtn{ width:30px; height:30px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:0.95rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); flex:0 0 auto; }
   .mini-title{ font-family:'Baloo 2', cursive; font-size:0.78rem; color:var(--plum); }
 
-  .hud-bar{ display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; padding:2px 6px; }
-  .hud-name{ font-family:'Baloo 2', cursive; font-size:0.7rem; color:var(--plum); display:flex; align-items:center; gap:4px; }
-  .hud-score{ font-family:'Baloo 2', cursive; font-size:0.7rem; color:var(--plum-soft); background:white; border-radius:999px; padding:2px 9px; box-shadow:0 2px 6px rgba(61,52,139,0.12); }
+  .match-hud{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; flex:0 0 auto;
+    background:white; border-radius:16px; padding:7px 12px; margin-bottom:4px; box-shadow:0 4px 10px rgba(61,52,139,0.1);
+  }
+  .hud-side{ display:flex; align-items:center; gap:6px; border:none; background:none; padding:0; font-family:inherit; }
+  .hud-side.player-side{ cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .hud-avatar{ font-size:1.25rem; }
+  .hud-info{ display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; }
+  .ai-side .hud-info{ align-items:flex-end; }
+  .hud-name{ font-family:'Baloo 2', cursive; font-size:0.78rem; color:var(--plum); }
+  .hud-score{ font-size:0.66rem; font-weight:700; color:var(--plum-soft); }
+  .hud-vs{
+    font-family:'Baloo 2', cursive; font-size:0.68rem; color:white; flex:0 0 auto;
+    width:26px; height:26px; border-radius:50%; background:linear-gradient(180deg,#FFD166,#E0A800);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  }
 
   .hand-row{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; flex:0 0 auto; padding:2px 0; }
 
@@ -175,12 +188,19 @@
 <div class="app">
   <div class="topnav">
     <a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a>
-    <span class="mini-title">🎴 DUELO DAS CARTAS — 🤖 Computador</span>
+    <span class="mini-title">🎴 DUELO DAS CARTAS — 🤖 Robozão</span>
   </div>
 
-  <div class="hud-bar">
-    <span class="hud-name">🤖 Computador</span>
-    <span class="hud-score">🪙 <span id="aiScoreNum">0</span></span>
+  <div class="match-hud">
+    <button class="hud-side player-side" id="playerNameBtn" aria-label="Trocar seu nome">
+      <span class="hud-avatar">🧑</span>
+      <span class="hud-info"><span class="hud-name" id="playerNameLabel">Você</span><span class="hud-score">🪙 <span id="playerScoreNum">0</span></span></span>
+    </button>
+    <span class="hud-vs">VS</span>
+    <div class="hud-side ai-side">
+      <span class="hud-info"><span class="hud-name">Robozão</span><span class="hud-score">🪙 <span id="aiScoreNum">0</span></span></span>
+      <span class="hud-avatar">🤖</span>
+    </div>
   </div>
   <div class="hand-row" id="aiHand"></div>
 
@@ -213,10 +233,6 @@
   </div>
 
   <div class="hand-row" id="playerHand"></div>
-  <div class="hud-bar">
-    <span class="hud-name">🧑 Você</span>
-    <span class="hud-score">🪙 <span id="playerScoreNum">0</span></span>
-  </div>
 
   <div class="overlay show" id="setupOverlay">
     <div class="big-emoji">🎴</div>
@@ -709,6 +725,21 @@ function openFamilyEditor(){
 document.getElementById('familyDoneBtn').onclick = () => {
   document.getElementById('familyOverlay').classList.remove('show');
   document.getElementById('setupOverlay').classList.add('show');
+};
+
+const PLAYER_NAME_KEY = 'duelo_player_name';
+function loadPlayerName(){ try{ return localStorage.getItem(PLAYER_NAME_KEY) || 'Você'; }catch(e){ return 'Você'; } }
+function savePlayerName(name){ try{ localStorage.setItem(PLAYER_NAME_KEY, name); }catch(e){} }
+document.getElementById('playerNameLabel').textContent = loadPlayerName();
+document.getElementById('playerNameBtn').onclick = () => {
+  const current = loadPlayerName();
+  const name = prompt('Como você quer se chamar?', current === 'Você' ? '' : current);
+  if(name && name.trim()){
+    const trimmed = name.trim().slice(0, 16);
+    savePlayerName(trimmed);
+    document.getElementById('playerNameLabel').textContent = trimmed;
+    playClick();
+  }
 };
 </script>
 </body>
