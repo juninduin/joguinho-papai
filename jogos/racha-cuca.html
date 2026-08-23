@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Racha-Cuca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#EAF4FB; --card:#FFFFFF; --coral:#FF8B67; --yellow:#FFD166;
+    --mint:#06D6A0; --plum:#3D348B; --plum-soft:#6C63AC; --ink:#2C2A4A;
+    --board-bg:#3D348B;
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; height:100vh; height:100svh; overflow:hidden;
+    background:
+      radial-gradient(circle at 12% 15%, #DCEEFB 0%, transparent 40%),
+      radial-gradient(circle at 88% 80%, #FDE9DC 0%, transparent 45%),
+      var(--sky);
+    font-family:'Quicksand', sans-serif; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    padding:8px 10px; touch-action:none;
+  }
+  h1,h2,.display{ font-family:'Baloo 2', cursive; }
+  .app{ width:100%; max-width:440px; height:100%; display:flex; flex-direction:column; min-height:0; }
+  .topnav{ display:flex; align-items:center; margin-bottom:4px; flex:0 0 auto; }
+  .backbtn{ width:36px; height:36px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--plum); text-decoration:none; box-shadow:0 4px 10px rgba(61,52,139,0.12); }
+  header.top{ text-align:center; margin-bottom:4px; flex:0 0 auto; }
+  header.top h1{ font-size:1.1rem; color:var(--plum); margin:0; }
+  header.top p{ margin:0; color:var(--plum-soft); font-weight:600; font-size:0.72rem; }
+  .stats{ display:flex; justify-content:space-around; margin-bottom:6px; flex:0 0 auto; }
+  .stat{ text-align:center; }
+  .stat .num{ font-family:'Baloo 2', cursive; font-size:1.1rem; color:var(--coral); line-height:1.1; }
+  .stat .lbl{ font-size:0.65rem; color:var(--plum-soft); font-weight:600; }
+
+  .board-wrap{ flex:1 1 auto; min-height:0; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; gap:8px; }
+  .board-box{
+    position:relative; width:min(100%, 78vh); aspect-ratio:1/1; border-radius:16px; overflow:hidden;
+    background:var(--board-bg); box-shadow:0 14px 30px rgba(61,52,139,0.2); flex:0 0 auto;
+  }
+  .tile{
+    position:absolute; top:0; left:0; display:flex; align-items:center; justify-content:center;
+    border:none; border-radius:8px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:transform .16s cubic-bezier(.34,1.4,.64,1); padding:0; overflow:hidden;
+  }
+  .tile.numbers{
+    background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%);
+    color:white; font-family:'Baloo 2', cursive; font-weight:700; box-shadow:inset 0 -4px 0 rgba(0,0,0,0.14), 0 3px 6px rgba(0,0,0,0.2);
+  }
+  .tile.image{ box-shadow:0 1px 3px rgba(0,0,0,0.35); background-repeat:no-repeat; }
+  .tile:active{ filter:brightness(0.94); }
+
+  .peek-overlay{
+    position:absolute; inset:0; background-size:cover; background-position:center;
+    opacity:0; pointer-events:none; transition:opacity .15s ease; border-radius:16px;
+  }
+  .peek-overlay.show{ opacity:1; }
+
+  .ctrls{ display:flex; justify-content:center; gap:10px; flex:0 0 auto; }
+  button.smallbtn{
+    font-family:'Baloo 2', cursive; font-size:0.78rem; border:none; border-radius:12px; padding:8px 14px;
+    cursor:pointer; background:white; color:var(--plum); box-shadow:0 4px 10px rgba(61,52,139,0.15);
+    transition:transform .1s ease;
+  }
+  button.smallbtn:active{ transform:scale(0.95); }
+
+  .overlay{
+    position:absolute; inset:0; background:rgba(61,52,139,0.62); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; color:white; padding:14px; z-index:10; overflow-y:auto;
+  }
+  .overlay .big-emoji{ font-size:2.1rem; margin-bottom:2px; }
+  .overlay h2{ margin:2px 0; font-size:1.05rem; }
+  .overlay p{ margin:0 0 8px; font-weight:600; font-size:0.8rem; }
+  button.btn{ font-family:'Baloo 2', cursive; font-size:0.85rem; border:none; border-radius:14px; padding:10px 18px; cursor:pointer; box-shadow:0 6px 14px rgba(61,52,139,0.25); transition:transform .12s ease; }
+  button.btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:linear-gradient(180deg, #FFA588 0%, var(--coral) 100%); color:white; }
+
+  .pick-label{ margin:8px 0 4px; font-size:0.78rem; font-weight:700; }
+  .choices{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:2px; }
+  .choices button.opt{
+    font-family:'Baloo 2', cursive; font-size:0.78rem; border:none; border-radius:12px; padding:9px 14px;
+    cursor:pointer; background:rgba(255,255,255,0.18); color:white; border:2px solid transparent;
+  }
+  .choices button.opt.selected{ background:white; color:var(--plum); border-color:var(--yellow); }
+
+  .photo-choices{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:2px; max-width:380px; }
+  .photo-btn{
+    width:56px; height:56px; border-radius:12px; border:3px solid transparent; padding:0; cursor:pointer;
+    background-size:cover; background-position:center; -webkit-tap-highlight-color:transparent;
+  }
+  .photo-btn.selected{ border-color:var(--yellow); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topnav"><a href="../menu.html" class="backbtn" aria-label="Voltar ao menu">⬅</a></div>
+  <header class="top">
+    <h1>🧩 Racha-Cuca</h1>
+    <p>Deslize as peças até formar tudo certinho</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="movesNum">0</div><div class="lbl">Movimentos</div></div>
+    <div class="stat"><div class="num" id="timeNum">0:00</div><div class="lbl">Tempo</div></div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board-box" id="boardBox">
+      <div class="peek-overlay" id="peekOverlay"></div>
+
+      <div class="overlay" id="setupOverlay">
+        <div class="big-emoji">🧩</div>
+        <h2>Racha-Cuca</h2>
+        <p>Escolha o tamanho e como quer jogar</p>
+
+        <p class="pick-label">Tamanho:</p>
+        <div class="choices" id="sizeChoices">
+          <button class="opt" data-size="3">Fácil (3x3)</button>
+          <button class="opt selected" data-size="4">Clássico (4x4)</button>
+        </div>
+
+        <p class="pick-label">Modo:</p>
+        <div class="choices" id="modeChoices">
+          <button class="opt selected" data-mode="numbers">🔢 Números</button>
+          <button class="opt" data-mode="image">🖼️ Imagem</button>
+        </div>
+
+        <div id="photoSection" style="display:none;">
+          <p class="pick-label">Escolha a foto:</p>
+          <div class="photo-choices" id="photoChoices"></div>
+        </div>
+
+        <button class="btn btn-primary" id="startBtn" style="margin-top:14px;">Embaralhar e jogar 🔀</button>
+      </div>
+
+      <div class="overlay" id="winOverlay" style="display:none;">
+        <div class="big-emoji">🎉</div>
+        <h2>Você conseguiu!</h2>
+        <p id="winStats"></p>
+        <button class="btn btn-primary" id="playAgainBtn">Jogar de novo 🔄</button>
+      </div>
+    </div>
+
+    <div class="ctrls">
+      <button class="smallbtn" id="shuffleBtn">🔀 Embaralhar</button>
+      <button class="smallbtn" id="peekBtn" style="display:none;">👁️ Ver imagem</button>
+      <button class="smallbtn" id="changeBtn">⚙️ Trocar jogo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let audioCtx = null;
+function getAudioCtx(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; } } if(audioCtx.state==='suspended'){ audioCtx.resume(); } return audioCtx; }
+function playTone(freq, startTime, duration, type, peakGain){
+  const ctx = getAudioCtx(); if(!ctx) return;
+  const osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = type || 'triangle'; osc.frequency.value = freq;
+  const t0 = ctx.currentTime + startTime;
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(peakGain || 0.14, t0 + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + duration + 0.02);
+}
+function playSlide(){ playTone(360, 0, 0.07, 'triangle', 0.08); }
+function playWin(){ [523,659,784,1047,1319].forEach((f,i)=> playTone(f, i*0.1, 0.26, 'triangle', 0.13)); }
+
+const PHOTOS = [
+  { id:'jl1', label:'Jhulya e Lorenzo', src:'../pessoas/Jhulya e Lorenzo 1.jpg' },
+  { id:'jl2', label:'Jhulya e Lorenzo', src:'../pessoas/Jhulya e Lorenzo 2.jpg' },
+  { id:'jhulya', label:'Jhulya', src:'../pessoas/jhulya_real.jpg' },
+  { id:'lorenzo', label:'Lorenzo', src:'../pessoas/lorenzo_real.jpg' },
+  { id:'perola', label:'Pérola', src:'../pessoas/perola (1).jpeg' },
+  { id:'papai', label:'Jhulya e Papai', src:'../pessoas/jhulya e papai.jpg' }
+];
+
+let N = 4;
+let mode = 'numbers';
+let photoSrc = PHOTOS[0].src;
+let grid = [];
+let tilePos = {};
+let tileEls = {};
+let blankRow, blankCol;
+let moves = 0;
+let running = false;
+let startTime = 0;
+let timerHandle = null;
+
+const boardBox = document.getElementById('boardBox');
+const peekOverlay = document.getElementById('peekOverlay');
+
+function buildSolvedGrid(){
+  grid = []; tilePos = {};
+  let id = 0;
+  for(let r=0; r<N; r++){
+    const row = [];
+    for(let c=0; c<N; c++){
+      if(r===N-1 && c===N-1){ row.push(null); }
+      else { row.push(id); tilePos[id] = {r,c}; id++; }
+    }
+    grid.push(row);
+  }
+  blankRow = N-1; blankCol = N-1;
+}
+
+function getNeighbors(r,c){
+  const list = [];
+  if(r>0) list.push({r:r-1,c});
+  if(r<N-1) list.push({r:r+1,c});
+  if(c>0) list.push({r,c:c-1});
+  if(c<N-1) list.push({r,c:c+1});
+  return list;
+}
+
+function positionTile(id){
+  const p = tilePos[id];
+  tileEls[id].style.transform = `translate(${p.c*100}%, ${p.r*100}%)`;
+}
+
+function slideTileAt(r, c, countMove){
+  if(r<0 || r>=N || c<0 || c>=N) return false;
+  const dr = Math.abs(r-blankRow), dc = Math.abs(c-blankCol);
+  if(dr+dc !== 1) return false;
+  const id = grid[r][c];
+  grid[blankRow][blankCol] = id;
+  grid[r][c] = null;
+  tilePos[id] = {r:blankRow, c:blankCol};
+  blankRow = r; blankCol = c;
+  if(tileEls[id]) positionTile(id);
+  if(countMove){
+    moves++;
+    document.getElementById('movesNum').textContent = moves;
+    playSlide();
+  }
+  return true;
+}
+
+function shuffleBoard(iterations){
+  let lastBlank = null;
+  for(let i=0; i<iterations; i++){
+    const options = getNeighbors(blankRow, blankCol).filter(n => !(lastBlank && n.r===lastBlank.r && n.c===lastBlank.c));
+    const pick = options[Math.floor(Math.random()*options.length)];
+    lastBlank = {r:blankRow, c:blankCol};
+    slideTileAt(pick.r, pick.c, false);
+  }
+}
+
+function checkWin(){
+  for(let r=0; r<N; r++){
+    for(let c=0; c<N; c++){
+      if(r===N-1 && c===N-1) continue;
+      if(grid[r][c] !== r*N+c) return false;
+    }
+  }
+  return true;
+}
+
+function onTileClick(id){
+  if(!running) return;
+  const p = tilePos[id];
+  if(!slideTileAt(p.r, p.c, true)) return;
+  if(checkWin()){
+    running = false;
+    stopTimer();
+    playWin();
+    const secs = Math.floor((Date.now()-startTime)/1000);
+    document.getElementById('winStats').textContent = `${moves} movimentos em ${formatTime(secs)}`;
+    document.getElementById('winOverlay').style.display = 'flex';
+  }
+}
+
+function renderBoard(){
+  boardBox.querySelectorAll('.tile').forEach(el => el.remove());
+  tileEls = {};
+  const total = N*N-1;
+  for(let id=0; id<total; id++){
+    const homeR = Math.floor(id/N), homeC = id%N;
+    const el = document.createElement('button');
+    el.className = 'tile ' + (mode==='numbers' ? 'numbers' : 'image');
+    el.style.width = (100/N) + '%';
+    el.style.height = (100/N) + '%';
+    el.style.fontSize = (mode==='numbers' ? (N===3 ? '1.8rem' : '1.4rem') : '1rem');
+    if(mode === 'numbers'){
+      el.textContent = id+1;
+    } else {
+      el.style.backgroundImage = `url("${photoSrc}")`;
+      el.style.backgroundSize = `${N*100}% ${N*100}%`;
+      el.style.backgroundPosition = `${N>1 ? (homeC/(N-1))*100 : 0}% ${N>1 ? (homeR/(N-1))*100 : 0}%`;
+    }
+    el.addEventListener('click', () => onTileClick(id));
+    boardBox.appendChild(el);
+    tileEls[id] = el;
+    positionTile(id);
+  }
+  peekOverlay.style.backgroundImage = mode==='image' ? `url("${photoSrc}")` : 'none';
+}
+
+function formatTime(secs){
+  const m = Math.floor(secs/60), s = secs%60;
+  return m + ':' + String(s).padStart(2,'0');
+}
+function startTimer(){
+  startTime = Date.now();
+  stopTimer();
+  timerHandle = setInterval(() => {
+    const secs = Math.floor((Date.now()-startTime)/1000);
+    document.getElementById('timeNum').textContent = formatTime(secs);
+  }, 500);
+}
+function stopTimer(){ if(timerHandle){ clearInterval(timerHandle); timerHandle = null; } }
+
+function startGame(){
+  document.getElementById('setupOverlay').style.display = 'none';
+  document.getElementById('winOverlay').style.display = 'none';
+  document.getElementById('peekBtn').style.display = mode==='image' ? 'inline-flex' : 'none';
+  moves = 0;
+  document.getElementById('movesNum').textContent = 0;
+  document.getElementById('timeNum').textContent = '0:00';
+  buildSolvedGrid();
+  renderBoard();
+  shuffleBoard(N*N*35);
+  running = true;
+  startTimer();
+}
+
+function backToSetup(){
+  running = false;
+  stopTimer();
+  document.getElementById('winOverlay').style.display = 'none';
+  document.getElementById('setupOverlay').style.display = 'flex';
+}
+
+document.getElementById('sizeChoices').addEventListener('click', e => {
+  const btn = e.target.closest('.opt'); if(!btn) return;
+  document.querySelectorAll('#sizeChoices .opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  N = parseInt(btn.dataset.size, 10);
+});
+
+document.getElementById('modeChoices').addEventListener('click', e => {
+  const btn = e.target.closest('.opt'); if(!btn) return;
+  document.querySelectorAll('#modeChoices .opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  mode = btn.dataset.mode;
+  document.getElementById('photoSection').style.display = mode==='image' ? 'block' : 'none';
+});
+
+const photoChoicesEl = document.getElementById('photoChoices');
+PHOTOS.forEach((p,i) => {
+  const btn = document.createElement('button');
+  btn.className = 'photo-btn' + (i===0 ? ' selected' : '');
+  btn.style.backgroundImage = `url("${p.src}")`;
+  btn.title = p.label;
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.photo-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    photoSrc = p.src;
+  });
+  photoChoicesEl.appendChild(btn);
+});
+
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('playAgainBtn').addEventListener('click', backToSetup);
+document.getElementById('changeBtn').addEventListener('click', backToSetup);
+document.getElementById('shuffleBtn').addEventListener('click', () => {
+  if(!running) return;
+  moves = 0;
+  document.getElementById('movesNum').textContent = 0;
+  shuffleBoard(N*N*35);
+  startTimer();
+});
+
+const peekBtn = document.getElementById('peekBtn');
+function showPeek(){ peekOverlay.classList.add('show'); }
+function hidePeek(){ peekOverlay.classList.remove('show'); }
+peekBtn.addEventListener('pointerdown', e => { e.preventDefault(); showPeek(); });
+peekBtn.addEventListener('pointerup', hidePeek);
+peekBtn.addEventListener('pointerleave', hidePeek);
+peekBtn.addEventListener('pointercancel', hidePeek);
+
+window.addEventListener('keydown', e => {
+  if(!running) return;
+  if(e.key==='ArrowUp'){ slideTileAt(blankRow-1, blankCol, true); }
+  else if(e.key==='ArrowDown'){ slideTileAt(blankRow+1, blankCol, true); }
+  else if(e.key==='ArrowLeft'){ slideTileAt(blankRow, blankCol-1, true); }
+  else if(e.key==='ArrowRight'){ slideTileAt(blankRow, blankCol+1, true); }
+  else return;
+  e.preventDefault();
+  if(checkWin()){
+    running = false;
+    stopTimer();
+    playWin();
+    const secs = Math.floor((Date.now()-startTime)/1000);
+    document.getElementById('winStats').textContent = `${moves} movimentos em ${formatTime(secs)}`;
+    document.getElementById('winOverlay').style.display = 'flex';
+  }
+});
+</script>
+</body>
+</html>
