@@ -34,7 +34,10 @@
   .backbtn:active{ transform:translateY(2px); box-shadow:none; }
   .fsbtn{ font-size:1rem; color:var(--plum); cursor:pointer; }
   .hud-overlay{
-    position:absolute; top:8px; left:8px; right:8px; z-index:4;
+    position:absolute; z-index:4;
+    top:calc(18px + env(safe-area-inset-top, 0px));
+    left:calc(18px + env(safe-area-inset-left, 0px));
+    right:calc(18px + env(safe-area-inset-right, 0px));
     display:flex; align-items:flex-start; justify-content:space-between; gap:6px; pointer-events:none;
   }
   .hud-left{ display:flex; align-items:center; gap:6px; pointer-events:none; }
