@@ -43,9 +43,16 @@
     width:92px; height:100px; border-radius:50%; overflow:hidden; border:5px solid white;
     box-shadow:0 6px 14px rgba(61,52,139,0.18); background:#FDEEDC;
   }
-  .face-frame img{ width:100%; height:100%; object-fit:cover; object-position:center 28%; display:block; }
+  .face-frame img{ width:100%; height:100%; object-fit:cover; object-position:center center; display:block; }
   .accessory{ position:absolute; z-index:4; top:-14px; left:50%; transform:translateX(-50%); font-size:2.1rem; }
   .held{ position:absolute; z-index:3; bottom:52px; right:-6px; font-size:1.7rem; }
+  .photo-btn{
+    position:absolute; z-index:5; top:78px; left:50%; transform:translateX(20px);
+    width:30px; height:30px; border-radius:50%; background:white; border:3px solid var(--plum);
+    display:flex; align-items:center; justify-content:center; font-size:0.85rem; cursor:pointer;
+    box-shadow:0 4px 8px rgba(61,52,139,0.2); -webkit-tap-highlight-color:transparent;
+  }
+  .photo-btn:active{ transform:translateX(20px) scale(0.9); }
 
   .opt-section{ margin-bottom:14px; }
   .opt-label{ font-family:'Baloo 2', cursive; color:var(--plum); font-size:0.92rem; margin:0 2px 8px; }
@@ -79,16 +86,24 @@
   <div class="stage">
     <div class="doll">
       <svg class="doll-svg" viewBox="0 0 190 285" xmlns="http://www.w3.org/2000/svg">
-        <rect x="55" y="90" width="17" height="88" rx="8.5" transform="rotate(-12 63.5 90)" fill="#FFDBB4"/>
-        <rect x="118" y="90" width="17" height="88" rx="8.5" transform="rotate(12 126.5 90)" fill="#FFDBB4"/>
         <rect x="74" y="176" width="19" height="84" rx="9.5" fill="#FFDBB4"/>
         <rect x="97" y="176" width="19" height="84" rx="9.5" fill="#FFDBB4"/>
         <rect x="85" y="76" width="20" height="18" rx="6" fill="#FFDBB4"/>
         <ellipse id="shoeL" cx="83.5" cy="260" rx="16" ry="9" fill="#8B5CF6"/>
         <ellipse id="shoeR" cx="106.5" cy="260" rx="16" ry="9" fill="#8B5CF6"/>
         <path id="outfitPath" fill="#FF6B9D" d=""/>
+        <g transform="rotate(-14 63 96)">
+          <rect x="53" y="96" width="18" height="82" rx="9" fill="#FFDBB4"/>
+          <circle cx="62" cy="180" r="10.5" fill="#FFDBB4"/>
+        </g>
+        <g transform="rotate(14 127 96)">
+          <rect x="119" y="96" width="18" height="82" rx="9" fill="#FFDBB4"/>
+          <circle cx="128" cy="180" r="10.5" fill="#FFDBB4"/>
+        </g>
       </svg>
-      <div class="face-frame"><img src="../pessoas/jhulya_real.jpg" alt="Jhulya"></div>
+      <div class="face-frame"><img id="dollFace" src="../pessoas/jhulya_real.jpg" alt="Jhulya"></div>
+      <button class="photo-btn" id="photoBtn" aria-label="Trocar foto" title="Trocar foto">📷</button>
+      <input type="file" accept="image/*" id="photoInput" style="display:none">
       <div class="accessory" id="accessoryEl"></div>
       <div class="held" id="heldEl"></div>
     </div>
@@ -221,6 +236,49 @@ document.getElementById('randomBtn').onclick = ()=>{
   renderAll();
 };
 
+function cropToSquareDataUrl(file, size){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(size/img.width, size/img.height);
+        const w = img.width*scale, h = img.height*scale;
+        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.9));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+const PHOTO_KEY = 'vestir_jhulya_photo';
+function loadSavedPhoto(){
+  try{
+    const saved = localStorage.getItem(PHOTO_KEY);
+    if(saved) document.getElementById('dollFace').src = saved;
+  }catch(e){}
+}
+document.getElementById('photoBtn').onclick = ()=> document.getElementById('photoInput').click();
+document.getElementById('photoInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const dataUrl = await cropToSquareDataUrl(file, 300);
+    document.getElementById('dollFace').src = dataUrl;
+    localStorage.setItem(PHOTO_KEY, dataUrl);
+    playClick();
+  }catch(err){}
+  e.target.value = '';
+});
+
+loadSavedPhoto();
 applyOutfit();
 renderAll();
 </script>

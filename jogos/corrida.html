@@ -251,17 +251,38 @@ function update(dt){
 function drawCar(x, y, color, isPlayer){
   ctx2d.save();
   ctx2d.translate(x, y);
+  const w = CAR_W, h = CAR_H;
+
+  ctx2d.fillStyle = '#1a1a1a';
+  const wheelW = 9, wheelH = 19;
+  roundRect(ctx2d, -w/2-5, -h/2+10, wheelW, wheelH, 3); ctx2d.fill();
+  roundRect(ctx2d, w/2-wheelW+5, -h/2+10, wheelW, wheelH, 3); ctx2d.fill();
+  roundRect(ctx2d, -w/2-5, h/2-10-wheelH, wheelW, wheelH, 3); ctx2d.fill();
+  roundRect(ctx2d, w/2-wheelW+5, h/2-10-wheelH, wheelW, wheelH, 3); ctx2d.fill();
+
   ctx2d.fillStyle = color;
-  roundRect(ctx2d, -CAR_W/2, -CAR_H/2, CAR_W, CAR_H, 10);
+  roundRect(ctx2d, -w/2, -h/2, w, h, 15);
   ctx2d.fill();
-  ctx2d.fillStyle = 'rgba(255,255,255,0.55)';
-  roundRect(ctx2d, -CAR_W/2+7, -CAR_H/2+10, CAR_W-14, 18, 5);
+
+  ctx2d.fillStyle = 'rgba(215,238,252,0.92)';
+  roundRect(ctx2d, -w/2+7, -h/2+13, w-14, h*0.26, 7);
   ctx2d.fill();
-  roundRect(ctx2d, -CAR_W/2+7, CAR_H/2-30, CAR_W-14, 18, 5);
+  ctx2d.fillStyle = 'rgba(215,238,252,0.75)';
+  roundRect(ctx2d, -w/2+7, h/2-13-h*0.15, w-14, h*0.15, 6);
   ctx2d.fill();
+
+  ctx2d.fillStyle = '#FFEFA8';
+  roundRect(ctx2d, -w/2+4, -h/2+2, 9, 5, 2); ctx2d.fill();
+  roundRect(ctx2d, w/2-13, -h/2+2, 9, 5, 2); ctx2d.fill();
+  ctx2d.fillStyle = '#E8483A';
+  roundRect(ctx2d, -w/2+4, h/2-7, 9, 5, 2); ctx2d.fill();
+  roundRect(ctx2d, w/2-13, h/2-7, 9, 5, 2); ctx2d.fill();
+
   if(isPlayer){
-    ctx2d.font = '20px serif'; ctx2d.textAlign='center'; ctx2d.textBaseline='middle';
-    ctx2d.fillText('🏎️', 0, 2);
+    ctx2d.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx2d.lineWidth = 2;
+    roundRect(ctx2d, -w/2, -h/2, w, h, 15);
+    ctx2d.stroke();
   }
   ctx2d.restore();
 }
