@@ -84,6 +84,12 @@
     box-shadow:0 3px 8px rgba(0,0,0,0.3); pointer-events:none;
   }
   .action-btns{ position:absolute; right:calc(20px + env(safe-area-inset-right, 0px)); bottom:calc(30px + env(safe-area-inset-bottom, 0px)); display:flex; align-items:flex-end; gap:12px; }
+  .minimap-wrap{
+    position:absolute; left:50%; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); transform:translateX(-50%);
+    width:112px; height:112px; border-radius:16px; background:rgba(255,255,255,0.9); border:3px solid #16214a;
+    box-shadow:0 4px 10px rgba(0,0,0,0.25); pointer-events:none; overflow:hidden;
+  }
+  #minimapCanvas{ width:100%; height:100%; display:block; }
   .tc-btn{
     border:3px solid #16214a; border-radius:50%; display:flex; align-items:center; justify-content:center;
     pointer-events:auto; -webkit-tap-highlight-color:transparent; user-select:none;
@@ -171,12 +177,13 @@
           <span class="hud-badge weapon"><span class="ic" id="weaponIc">🔫</span><b id="weaponName">Bolha</b></span>
           <span class="hud-badge grenade"><span class="ic">💣</span><b id="grenadeNum">0</b></span>
           <span class="hud-badge coins"><span class="ic">💎</span><b id="scoreNum">0</b></span>
-          <span class="hud-badge wave"><span class="ic">🚩</span>Onda&nbsp;<b id="waveNum">1</b>/3</span>
+          <span class="hud-badge wave"><span class="ic">🚩</span>Fase&nbsp;<b id="waveNum">1</b>/3</span>
         </div>
       </div>
 
       <div class="touch-ctrls">
         <div class="joystick-base" id="joyBase"><div class="joystick-thumb" id="joyThumb"></div></div>
+        <div class="minimap-wrap"><canvas id="minimapCanvas" width="118" height="118"></canvas></div>
         <div class="action-btns">
           <button class="tc-btn" id="btnGrenade">💣</button>
           <button class="tc-btn" id="btnShoot">🎯</button>
@@ -186,7 +193,7 @@
       <div class="overlay" id="setupOverlay">
         <div class="big-emoji">🎯</div>
         <h2>Ilha da Batalha</h2>
-        <p>Ande com o analógico, atire nos robozinhos, pegue armas e bombinhas!</p>
+        <p>Ande com o analógico, atire nos robozinhos e desvie das pedras até chegar na bandeira 🚩! Olhe o mapinha embaixo pra achar o caminho.</p>
         <label class="name-label" style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:0.78rem;font-weight:700;margin:4px 0;">Seu nome:
           <input type="text" id="nameInput" maxlength="14" placeholder="Jogador" style="font-family:'Quicksand',sans-serif;font-size:0.85rem;padding:6px 10px;border-radius:10px;border:none;text-align:center;width:170px;color:var(--ink);">
         </label>
@@ -421,6 +428,7 @@ const DIFF_MULT = {1:0.7, 2:1, 3:1.3};
 const MAP_W = 1500, MAP_H = 1500;
 const PLAYER_RADIUS = 17, ENEMY_RADIUS = 15;
 const MOVE_SPEED = 210;
+const GOAL_RADIUS = 40;
 const GRENADE_FUSE = 0.9, GRENADE_RADIUS = 150, GRENADE_DAMAGE = 6, GRENADE_TOSS_DIST = 190;
 const ENEMY_CONTACT_DAMAGE = 8, ENEMY_HIT_COOLDOWN = 0.8;
 
@@ -434,7 +442,8 @@ const player = {
   x: MAP_W/2, y: MAP_H/2, hp: 100, maxHp: 100, weaponId:'bubble', grenades:1, score:0,
   facing:{x:0,y:-1}, fireCooldown:0, angle: Math.PI/2, targetAngle: Math.PI/2
 };
-let enemies = [], projectiles = [], pickups = [], grenadesActive = [];
+let enemies = [], projectiles = [], pickups = [], grenadesActive = [], barriers = [];
+let goal = { x: MAP_W-140, y: MAP_H-140 };
 
 const joy = { active:false, pointerId:null, dx:0, dy:0 };
 const joyBase = document.getElementById('joyBase');
@@ -468,27 +477,48 @@ function spawnFx(worldX, worldY, text, cls){
   setTimeout(()=> el.remove(), 650);
 }
 
+function alongPath(t, spread){
+  const baseX = player.x + (goal.x-player.x)*t;
+  const baseY = player.y + (goal.y-player.y)*t;
+  const x = Math.max(70, Math.min(MAP_W-70, baseX + (Math.random()-0.5)*spread));
+  const y = Math.max(70, Math.min(MAP_H-70, baseY + (Math.random()-0.5)*spread));
+  return {x, y};
+}
+
 function genPickups(wave){
-  const cx = MAP_W/2, cy = MAP_H/2;
   const list = [];
-  ringPositions(5, 260, cx, cy).forEach(p => list.push({x:p.x, y:p.y, type:'gem', taken:false}));
-  ringPositions(2, 430, cx, cy).forEach((p,i) => {
-    const ids = Object.keys(WEAPONS);
-    list.push({x:p.x, y:p.y, type:'weapon', weaponId: ids[i % ids.length], taken:false});
-  });
-  ringPositions(2, 170, cx, cy).forEach(p => list.push({x:p.x, y:p.y, type:'grenade', taken:false}));
-  list.push({x:cx+60, y:cy-60, type:'health', taken:false});
+  for(let i=0;i<4;i++){ const p = alongPath(0.15+i*0.2, 260); list.push({x:p.x, y:p.y, type:'gem', taken:false}); }
+  const ids = Object.keys(WEAPONS);
+  for(let i=0;i<2;i++){ const p = alongPath(0.3+i*0.35, 220); list.push({x:p.x, y:p.y, type:'weapon', weaponId: ids[i % ids.length], taken:false}); }
+  const p1 = alongPath(0.5, 200); list.push({x:p1.x, y:p1.y, type:'grenade', taken:false});
+  const p2 = alongPath(0.65, 200); list.push({x:p2.x, y:p2.y, type:'health', taken:false});
+  return list;
+}
+
+function genBarriers(idx){
+  const count = 4 + idx*2;
+  const list = [];
+  for(let i=0;i<count;i++){
+    const p = alongPath(0.15 + Math.random()*0.7, 320);
+    const r = 34 + Math.random()*18;
+    list.push({x:p.x, y:p.y, r});
+  }
   return list;
 }
 
 function loadWave(idx){
   const w = WAVES[idx];
-  player.x = MAP_W/2; player.y = MAP_H/2;
+  player.x = 140; player.y = 140;
   player.hp = player.maxHp;
   player.fireCooldown = 0;
-  enemies = ringPositions(w.enemyCount, w.radius, MAP_W/2, MAP_H/2).map(p => ({
-    x:p.x, y:p.y, hp:w.hp, maxHp:w.hp, hitCooldown:0
-  }));
+  goal.x = MAP_W-140; goal.y = MAP_H-140;
+  enemies = [];
+  for(let i=0;i<w.enemyCount;i++){
+    const t = (i+1)/(w.enemyCount+1);
+    const p = alongPath(t, 260);
+    enemies.push({x:p.x, y:p.y, hp:w.hp, maxHp:w.hp, hitCooldown:0});
+  }
+  barriers = genBarriers(idx);
   pickups = genPickups(idx);
   projectiles = [];
   grenadesActive = [];
@@ -528,13 +558,13 @@ function waveComplete(){
   running = false;
   playWaveClear();
   if(waveIdx < WAVES.length-1){
-    showMsg('🎉', `Onda ${waveIdx+1} concluída!`, `Pontos: ${player.score}`, 'Próxima onda', () => {
+    showMsg('🚩', `Fase ${waveIdx+1} concluída!`, `Você chegou na bandeira! Pontos: ${player.score}`, 'Próxima fase', () => {
       waveIdx++; loadWave(waveIdx); hideMsg(); resumeLoop();
     });
   } else {
     if(player.score > best){ best = player.score; saveBest(best); }
     playVictory();
-    showMsg('🏆', 'Ilha conquistada!', `Parabéns, ${playerName}! Pontuação final: ${player.score}. Recorde: ${best}.`, 'Jogar novamente', backToSetup);
+    showMsg('🏆', 'Ilha conquistada!', `Parabéns, ${playerName}! Você chegou até o fim. Pontuação final: ${player.score}. Recorde: ${best}.`, 'Jogar novamente', backToSetup);
   }
 }
 function gameOver(){
@@ -622,6 +652,19 @@ function update(dt){
     let diff = ((player.targetAngle - player.angle + Math.PI*3) % (Math.PI*2)) - Math.PI;
     player.angle += diff * Math.min(1, dt*12);
   }
+  player.x = Math.max(PLAYER_RADIUS, Math.min(MAP_W-PLAYER_RADIUS, player.x));
+  player.y = Math.max(PLAYER_RADIUS, Math.min(MAP_H-PLAYER_RADIUS, player.y));
+
+  barriers.forEach(b => {
+    const dx = player.x-b.x, dy = player.y-b.y;
+    const dd = Math.hypot(dx,dy);
+    const minDist = b.r + PLAYER_RADIUS;
+    if(dd < minDist && dd > 0){
+      const push = minDist - dd;
+      player.x += (dx/dd)*push;
+      player.y += (dy/dd)*push;
+    }
+  });
   player.x = Math.max(PLAYER_RADIUS, Math.min(MAP_W-PLAYER_RADIUS, player.x));
   player.y = Math.max(PLAYER_RADIUS, Math.min(MAP_H-PLAYER_RADIUS, player.y));
 
@@ -728,7 +771,9 @@ function update(dt){
     }
   });
 
-  if(enemies.length === 0){ waveComplete(); return; }
+  if(dist2(player.x,player.y,goal.x,goal.y) < (GOAL_RADIUS+PLAYER_RADIUS)*(GOAL_RADIUS+PLAYER_RADIUS)){
+    waveComplete(); return;
+  }
 }
 
 // ---------- draw ----------
@@ -794,6 +839,43 @@ function drawGround(){
   ctx.strokeStyle = '#5C8A4A'; ctx.lineWidth = 10;
   ctx.strokeRect(5,5,MAP_W-10,MAP_H-10);
 }
+function drawBarriers(){
+  barriers.forEach(b => {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.beginPath(); ctx.ellipse(0, b.r*0.55, b.r*0.9, b.r*0.32, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,0.16)'; ctx.fill();
+    const grad = ctx.createRadialGradient(-b.r*0.3,-b.r*0.3,b.r*0.1, 0,0,b.r);
+    grad.addColorStop(0, '#B7ADA0'); grad.addColorStop(1, '#7D746A');
+    ctx.beginPath();
+    ctx.moveTo(-b.r, b.r*0.3);
+    ctx.quadraticCurveTo(-b.r*0.9, -b.r*0.9, 0, -b.r);
+    ctx.quadraticCurveTo(b.r*0.9, -b.r*0.7, b.r, b.r*0.2);
+    ctx.quadraticCurveTo(b.r*0.5, b.r*0.7, 0, b.r*0.65);
+    ctx.quadraticCurveTo(-b.r*0.6, b.r*0.7, -b.r, b.r*0.3);
+    ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function drawGoal(){
+  const pulse = 1 + Math.sin(elapsed*3)*0.08;
+  ctx.save();
+  ctx.translate(goal.x, goal.y);
+  ctx.beginPath(); ctx.arc(0,0,GOAL_RADIUS*pulse,0,Math.PI*2);
+  ctx.fillStyle = 'rgba(255,209,102,0.25)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(0,0,GOAL_RADIUS*0.6,0,Math.PI*2);
+  ctx.strokeStyle = 'rgba(224,168,0,0.6)'; ctx.lineWidth = 3; ctx.setLineDash([8,6]); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#5C4326'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0,18); ctx.lineTo(0,-30); ctx.stroke();
+  ctx.fillStyle = '#FF6B6B';
+  ctx.beginPath(); ctx.moveTo(0,-30); ctx.lineTo(24,-22); ctx.lineTo(0,-13); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
 function drawPickups(){
   pickups.forEach(p => {
     if(p.taken) return;
@@ -866,18 +948,57 @@ function drawPlayer(){
   ctx.restore();
 }
 
+const minimapCanvas = document.getElementById('minimapCanvas');
+const minimapCtx = minimapCanvas.getContext('2d');
+function drawMinimap(){
+  const size = 118;
+  const scale = size / MAP_W;
+  minimapCtx.clearRect(0,0,size,size);
+  minimapCtx.fillStyle = '#DFF3E4';
+  minimapCtx.fillRect(0,0,size,size);
+
+  minimapCtx.fillStyle = '#A79C8C';
+  barriers.forEach(b => {
+    minimapCtx.beginPath();
+    minimapCtx.arc(b.x*scale, b.y*scale, Math.max(2, b.r*scale), 0, Math.PI*2);
+    minimapCtx.fill();
+  });
+
+  minimapCtx.strokeStyle = '#E0A800'; minimapCtx.lineWidth = 1.5;
+  minimapCtx.fillStyle = '#FFD166';
+  minimapCtx.beginPath();
+  minimapCtx.arc(goal.x*scale, goal.y*scale, 5, 0, Math.PI*2);
+  minimapCtx.fill(); minimapCtx.stroke();
+
+  minimapCtx.fillStyle = '#E8483A';
+  enemies.forEach(e => {
+    minimapCtx.beginPath();
+    minimapCtx.arc(e.x*scale, e.y*scale, 3, 0, Math.PI*2);
+    minimapCtx.fill();
+  });
+
+  minimapCtx.fillStyle = '#2F6FED';
+  minimapCtx.strokeStyle = 'white'; minimapCtx.lineWidth = 1.5;
+  minimapCtx.beginPath();
+  minimapCtx.arc(player.x*scale, player.y*scale, 4, 0, Math.PI*2);
+  minimapCtx.fill(); minimapCtx.stroke();
+}
+
 function draw(){
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle = '#EAF8F0'; ctx.fillRect(0,0,W,H);
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
   drawGround();
+  drawGoal();
+  drawBarriers();
   drawPickups();
   drawGrenades();
   drawEnemies();
   drawProjectiles();
   drawPlayer();
   ctx.restore();
+  drawMinimap();
 }
 
 function loop(ts){
