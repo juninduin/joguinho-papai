@@ -101,7 +101,7 @@
       <div class="overlay" id="startOverlay">
         <div class="big-emoji">🧱</div>
         <h2>Torre Maluca</h2>
-        <p>Toque na hora certa pra empilhar os blocos bem no meio!<br>Vamos ver que torre alta você consegue fazer?</p>
+        <p>Os blocos vêm um de cada vez, de tamanhos diferentes! Toque pra empilhar o que você quiser, ou deixe passar e espere um melhor.<br>Vamos ver que torre alta você consegue fazer?</p>
         <button class="btn btn-primary" id="startBtn">Começar 🚀</button>
       </div>
       <div class="overlay" id="overOverlay" style="display:none;">
@@ -202,12 +202,14 @@ function resetState(){
 }
 
 function spawnMoving(){
-  const last = stack[stack.length-1];
-  const speed = Math.min(3.6, 1.7 + stack.length*0.05);
+  const speed = Math.min(3.8, 1.7 + stack.length*0.045);
+  const minW = Math.max(46, 95 - stack.length*1.1);
+  const maxW = Math.max(minW+30, Math.min(W*0.6, 235 - stack.length*1.6));
+  const w = minW + Math.random()*(maxW-minW);
   const fromLeft = Math.random() < 0.5;
   moving = {
-    x: fromLeft ? -last.w : W,
-    w: last.w,
+    x: fromLeft ? -w : W,
+    w,
     dir: fromLeft ? 1 : -1,
     speed,
     color: PALETTE[stack.length % PALETTE.length]
@@ -288,8 +290,9 @@ function update(dt){
   if(moving){
     moving.x += moving.dir * moving.speed * dt;
     const overshoot = 6;
-    if(moving.dir > 0 && moving.x > W + overshoot) moving.dir = -1;
-    if(moving.dir < 0 && moving.x + moving.w < -overshoot) moving.dir = 1;
+    if((moving.dir > 0 && moving.x > W + overshoot) || (moving.dir < 0 && moving.x + moving.w < -overshoot)){
+      spawnMoving();
+    }
   }
   updateFalling(dt);
   if(toast){ toast.t += dt; if(toast.t > 55) toast = null; }
